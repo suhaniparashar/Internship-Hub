@@ -16,11 +16,13 @@ export const useAppContext = () => {
 
 // Context Provider Component
 export const AppContextProvider = ({ children }) => {
-  // State management - using API + localStorage for logged in user only
+  // State management - all local storage based
   const [loggedInUser, setLoggedInUser] = useLocalStorage('loggedInUser', null);
   const [users, setUsers] = useState([]);
   const [internships, setInternships] = useState([]);
   const [applications, setApplications] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
   const [darkMode, setDarkMode] = useLocalStorage('darkMode', false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -38,141 +40,43 @@ export const AppContextProvider = ({ children }) => {
     }
   }, [darkMode]);
 
-  // Fetch all data from API with localStorage fallback
+  // Fetch all data from localStorage
   const fetchAllData = async () => {
     setIsLoading(true);
     try {
-      // Fetch internships, users, and applications in parallel
-      const [internshipsData, usersData, applicationsData] = await Promise.all([
-        api.internships.getAll().catch(() => null),
-        api.users.getAll().catch(() => null),
-        loggedInUser ? api.applications.getAll(loggedInUser.id).catch(() => null) : Promise.resolve(null)
+      const [internshipsData, usersData, applicationsData, tasksData, submissionsData] = await Promise.all([
+        api.internships.getAll(),
+        api.users.getAll(),
+        loggedInUser ? api.applications.getAll(loggedInUser.id) : Promise.resolve([]),
+        api.tasks.getAll(),
+        api.submissions.getAll()
       ]);
 
-      // Use API data if available, otherwise use localStorage
-      if (internshipsData && internshipsData.length > 0) {
-        setInternships(internshipsData);
-        localStorage.setItem('internships', JSON.stringify(internshipsData));
-      } else {
-        const storedInternships = JSON.parse(localStorage.getItem('internships') || 'null');
-        setInternships(storedInternships || getFallbackInternships());
-      }
-
-      if (usersData && usersData.length > 0) {
-        setUsers(usersData);
-        localStorage.setItem('users', JSON.stringify(usersData));
-      } else {
-        const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
-        setUsers(storedUsers);
-      }
-
-      if (applicationsData && applicationsData.length > 0) {
-        setApplications(applicationsData);
-        localStorage.setItem('applications', JSON.stringify(applicationsData));
-      } else {
-        const storedApps = JSON.parse(localStorage.getItem('applications') || '[]');
-        setApplications(storedApps);
-      }
+      setInternships(internshipsData || []);
+      setUsers(usersData || []);
+      setApplications(applicationsData || []);
+      setTasks(tasksData || []);
+      setSubmissions(submissionsData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
-      // Use fallback data if API fails
-      setInternships(getFallbackInternships());
-      const storedApps = JSON.parse(localStorage.getItem('applications') || '[]');
-      setApplications(storedApps);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Fallback internships data for offline mode
-  const getFallbackInternships = () => [
-    {
-      _id: '1',
-      title: "Frontend Developer Intern",
-      company: "TechCorp Solutions",
-      duration: "3 Months",
-      location: "Remote",
-      stipend: "₹15,000/month",
-      description: "Work on modern web applications using React, Vue, or Angular.",
-      skills: ["HTML", "CSS", "JavaScript", "React"],
-      type: "Full-time"
-    },
-    {
-      _id: '2',
-      title: "Backend Developer Intern",
-      company: "CloudTech Systems",
-      duration: "4 Months",
-      location: "Hyderabad",
-      stipend: "₹18,000/month",
-      description: "Build scalable APIs and work with databases, microservices, and cloud platforms.",
-      skills: ["Node.js", "MongoDB", "REST API", "Docker"],
-      type: "Full-time"
-    },
-    {
-      _id: '3',
-      title: "Data Science Intern",
-      company: "Analytics Pro",
-      duration: "6 Months",
-      location: "Pune",
-      stipend: "₹20,000/month",
-      description: "Work on machine learning projects and data analysis.",
-      skills: ["Python", "TensorFlow", "Pandas", "Machine Learning"],
-      type: "Full-time"
-    }
-  ];
-
-  // Login function
+  // Login function - local storage only
   const login = async (username, password) => {
     try {
-      // Try API first
       const userData = await api.users.login({ username, password });
       setLoggedInUser(userData);
+      
       // Fetch user's applications after login
       const userApps = await api.applications.getAll(userData.id);
       setApplications(userApps);
+      
       return { success: true, user: userData };
     } catch (error) {
-      console.log('API login failed, trying offline mode...', error);
-      
-      // Fallback to demo users for offline mode
-      const demoUsers = [
-        {
-          id: 'demo-user',
-          username: 'demo',
-          email: 'demo@internhub.com',
-          fullName: 'Demo Student',
-          role: 'student',
-          password: 'demo123',
-          isAdmin: false
-        },
-        {
-          id: 'admin-user',
-          username: 'admin',
-          email: 'admin@internhub.com',
-          fullName: 'Admin User',
-          role: 'admin',
-          password: 'suhani123',
-          isAdmin: true
-        }
-      ];
-      
-      const offlineUser = demoUsers.find(u => 
-        u.username === username && u.password === password
-      );
-      
-      if (offlineUser) {
-        const { password: _, ...userWithoutPassword } = offlineUser;
-        setLoggedInUser(userWithoutPassword);
-        
-        // Load applications from localStorage
-        const storedApps = JSON.parse(localStorage.getItem('applications') || '[]');
-        const userApps = storedApps.filter(app => app.userId === offlineUser.id);
-        setApplications(userApps);
-        
-        return { success: true, user: userWithoutPassword, offline: true };
-      }
-      
-      return { success: false, error: 'Invalid credentials' };
+      return { success: false, error: error.message || 'Invalid credentials' };
     }
   };
 
@@ -188,7 +92,6 @@ export const AppContextProvider = ({ children }) => {
       const userData = await api.users.register(newUser);
       return { success: true, user: userData };
     } catch (error) {
-      console.error('Registration error:', error);
       return { success: false, error: error.message };
     }
   };
@@ -207,44 +110,22 @@ export const AppContextProvider = ({ children }) => {
       setApplications([...applications, newApplication]);
       return true;
     } catch (error) {
-      console.log('API apply failed, using offline mode...');
-      
-      // Offline fallback - save to localStorage
-      const internship = internships.find(i => i._id === internshipId || i.id === internshipId);
-      const offlineApp = {
-        _id: Date.now().toString(),
-        userId: loggedInUser.id,
-        internshipId: internship,
-        status: 'Pending',
-        appliedDate: new Date().toISOString(),
-        adminFeedback: ''
-      };
-      
-      const updatedApps = [...applications, offlineApp];
-      setApplications(updatedApps);
-      
-      // Save to localStorage
-      localStorage.setItem('applications', JSON.stringify(updatedApps));
-      
-      return true;
+      console.error('Apply error:', error.message);
+      return false;
     }
   };
 
   // Get user applications
   const getUserApplications = () => {
     if (!loggedInUser) return [];
-    return applications.filter(app => app.userId._id === loggedInUser.id || app.userId === loggedInUser.id);
+    return applications.filter(app => app.userId === loggedInUser.id);
   };
 
   // Check if user has applied for an internship
   const hasApplied = (internshipId) => {
     if (!loggedInUser) return false;
     return applications.some(
-      app => {
-        const userId = app.userId._id || app.userId;
-        const appInternshipId = app.internshipId._id || app.internshipId;
-        return userId === loggedInUser.id && appInternshipId === internshipId;
-      }
+      app => app.userId === loggedInUser.id && app.internshipId == internshipId
     );
   };
 
@@ -253,12 +134,12 @@ export const AppContextProvider = ({ children }) => {
     setDarkMode(!darkMode);
   };
 
-  // Update application status (admin only)
+  // Update application status
   const updateApplicationStatus = async (applicationId, newStatus) => {
     try {
       const updatedApp = await api.applications.update(applicationId, { status: newStatus });
       const updatedApplications = applications.map(app =>
-        app._id === applicationId ? updatedApp : app
+        app.id === applicationId ? updatedApp : app
       );
       setApplications(updatedApplications);
       return true;
@@ -268,11 +149,11 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Delete application (admin only)
+  // Delete application
   const deleteApplication = async (applicationId) => {
     try {
       await api.applications.delete(applicationId);
-      const updatedApplications = applications.filter(app => app._id !== applicationId);
+      const updatedApplications = applications.filter(app => app.id !== applicationId);
       setApplications(updatedApplications);
       return true;
     } catch (error) {
@@ -281,18 +162,16 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Add task to application (student or admin)
+  // Create task
   const addTaskToApplication = async (applicationId, taskData) => {
     try {
       const newTask = await api.tasks.create({
         applicationId: applicationId,
         userId: loggedInUser.id,
-        title: taskData.title,
+        ...taskData,
         completed: false
       });
-      
-      // Refresh applications to get updated data
-      await fetchAllData();
+      setTasks([...tasks, newTask]);
       return true;
     } catch (error) {
       console.error('Add task error:', error);
@@ -303,9 +182,9 @@ export const AppContextProvider = ({ children }) => {
   // Update task status
   const updateTaskStatus = async (taskId, completed) => {
     try {
-      await api.tasks.update(taskId, { completed });
-      // Refresh applications to get updated data
-      await fetchAllData();
+      const updatedTask = await api.tasks.update(taskId, { completed });
+      const updatedTasks = tasks.map(t => t.id === taskId ? updatedTask : t);
+      setTasks(updatedTasks);
       return true;
     } catch (error) {
       console.error('Update task error:', error);
@@ -313,12 +192,12 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Add feedback to task (admin only)
+  // Add task feedback
   const addTaskFeedback = async (taskId, feedback) => {
     try {
-      await api.tasks.update(taskId, { adminFeedback: feedback });
-      // Refresh applications to get updated data
-      await fetchAllData();
+      const updatedTask = await api.tasks.update(taskId, { adminFeedback: feedback });
+      const updatedTasks = tasks.map(t => t.id === taskId ? updatedTask : t);
+      setTasks(updatedTasks);
       return true;
     } catch (error) {
       console.error('Add feedback error:', error);
@@ -327,12 +206,11 @@ export const AppContextProvider = ({ children }) => {
   };
 
   // Add admin feedback to application
-  // Add admin feedback to application
   const addAdminFeedback = async (applicationId, feedback) => {
     try {
       const updatedApp = await api.applications.update(applicationId, { adminFeedback: feedback });
       const updatedApplications = applications.map(app =>
-        app._id === applicationId ? updatedApp : app
+        app.id === applicationId ? updatedApp : app
       );
       setApplications(updatedApplications);
       return true;
@@ -346,11 +224,36 @@ export const AppContextProvider = ({ children }) => {
   const deleteTask = async (taskId) => {
     try {
       await api.tasks.delete(taskId);
-      // Refresh applications to get updated data
-      await fetchAllData();
+      const updatedTasks = tasks.filter(t => t.id !== taskId);
+      setTasks(updatedTasks);
       return true;
     } catch (error) {
       console.error('Delete task error:', error);
+      return false;
+    }
+  };
+
+  // Create submission
+  const createSubmission = async (submissionData) => {
+    try {
+      const newSubmission = await api.submissions.create(submissionData);
+      setSubmissions([...submissions, newSubmission]);
+      return true;
+    } catch (error) {
+      console.error('Create submission error:', error);
+      return false;
+    }
+  };
+
+  // Update submission
+  const updateSubmission = async (submissionId, updates) => {
+    try {
+      const updatedSubmission = await api.submissions.update(submissionId, updates);
+      const updatedSubmissions = submissions.map(s => s.id === submissionId ? updatedSubmission : s);
+      setSubmissions(updatedSubmissions);
+      return true;
+    } catch (error) {
+      console.error('Update submission error:', error);
       return false;
     }
   };
@@ -362,6 +265,8 @@ export const AppContextProvider = ({ children }) => {
     users,
     internships,
     applications,
+    tasks,
+    submissions,
     darkMode,
     isLoading,
     
@@ -380,7 +285,9 @@ export const AppContextProvider = ({ children }) => {
     addTaskFeedback,
     addAdminFeedback,
     deleteTask,
-    fetchAllData // Export this for manual refresh
+    createSubmission,
+    updateSubmission,
+    fetchAllData // Export for manual refresh
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
