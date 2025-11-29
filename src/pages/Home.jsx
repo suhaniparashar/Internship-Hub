@@ -137,6 +137,78 @@ function Home() {
                 </div>
             </section>
 
+            {/* Key Benefits Section */}
+            <section className="benefits-showcase-section">
+                <div className="container">
+                    <div className="benefits-showcase">
+                        <div className="benefits-text">
+                            <h2>Why Thousands of Students Choose InternHub</h2>
+                            <p className="benefits-subtitle">Complete platform for internship success with verified opportunities and real support</p>
+                            <ul className="benefits-list">
+                                <li>
+                                    <span className="benefit-icon">🎯</span>
+                                    <div className="benefit-content">
+                                        <strong>500+ Premium Internships</strong>
+                                        <p>Curated opportunities from Fortune 500 companies, funded startups, and global tech leaders</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span className="benefit-icon">🏢</span>
+                                    <div className="benefit-content">
+                                        <strong>1,000+ Top Companies</strong>
+                                        <p>Work with Google, Microsoft, Amazon, Meta, Apple, and more verified partners</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span className="benefit-icon">📊</span>
+                                    <div className="benefit-content">
+                                        <strong>Real-Time Tracking</strong>
+                                        <p>Monitor your applications, interview schedules, and get instant status updates</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span className="benefit-icon">💰</span>
+                                    <div className="benefit-content">
+                                        <strong>Competitive Stipends</strong>
+                                        <p>Earn ₹14,000 to ₹30,000+ per month during your internship</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span className="benefit-icon">🔔</span>
+                                    <div className="benefit-content">
+                                        <strong>Smart Recommendations</strong>
+                                        <p>AI-powered matches based on your skills, interests, and career goals</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span className="benefit-icon">✅</span>
+                                    <div className="benefit-content">
+                                        <strong>100% Free to Use</strong>
+                                        <p>Create account and browse internships at zero cost. We monetize through company partnerships</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div className="benefits-image">
+                            <div className="benefits-visual">
+                                <div className="visual-card card-1">
+                                    <div className="card-icon">🚀</div>
+                                    <p>Career Growth</p>
+                                </div>
+                                <div className="visual-card card-2">
+                                    <div className="card-icon">📈</div>
+                                    <p>Real Skills</p>
+                                </div>
+                                <div className="visual-card card-3">
+                                    <div className="card-icon">🤝</div>
+                                    <p>Mentorship</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* CTA Section */}
             <section className="cta-section">
                 <div className="container">
