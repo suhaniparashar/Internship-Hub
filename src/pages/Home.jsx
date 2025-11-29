@@ -1,17 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 function Home() {
-    const [email, setEmail] = useState('');
-
-    const handleNewsletterSubmit = (e) => {
-        e.preventDefault();
-        alert('Thank you for subscribing!');
-        setEmail('');
-    };
-
     return (
         <>
             <Navbar />
@@ -301,26 +293,6 @@ function Home() {
                             <h3>What if I don't get selected?</h3>
                             <p>Keep applying! We have 1,000+ opportunities. Use our skill recommendations to improve your profile and increase chances.</p>
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Newsletter Section */}
-            <section className="newsletter-section">
-                <div className="container">
-                    <div className="newsletter-content">
-                        <h2>Get Weekly Internship Alerts</h2>
-                        <p>Subscribe to get the latest opportunities matching your profile, delivered to your inbox</p>
-                        <form className="newsletter-form" onSubmit={handleNewsletterSubmit}>
-                            <input 
-                                type="email" 
-                                placeholder="your@email.com" 
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                            <button type="submit" className="btn btn-primary">Subscribe</button>
-                        </form>
                     </div>
                 </div>
             </section>

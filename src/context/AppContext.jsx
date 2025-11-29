@@ -299,7 +299,11 @@ export const AppContextProvider = ({ children }) => {
     updateInternship,
     deleteInternship,
     updateUser,
-    deleteUser
+    deleteUser,
+    // Expose raw API objects for Admin page
+    applicationAPI,
+    internshipAPI,
+    userAPI
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

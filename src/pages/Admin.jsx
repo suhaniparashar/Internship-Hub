@@ -5,13 +5,29 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { showMessage, showConfirmModal } from '../utils/notifications';
 import { formatDate } from '../utils/formatDate';
+import '../styles/Admin.css';
 
 function Admin() {
   const navigate = useNavigate();
-  const { loggedInUser, users, internships, applicationAPI, internshipAPI, userAPI } = useAppContext();
+  const { 
+    loggedInUser, 
+    users, 
+    internships, 
+    applications: contextApplications,
+    tasks: contextTasks,
+    applicationAPI, 
+    internshipAPI,
+    addTaskToApplication,
+    deleteTask,
+    fetchAllData 
+  } = useAppContext();
+  
   const [activeTab, setActiveTab] = useState('overview');
   const [applications, setApplications] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAppForTask, setSelectedAppForTask] = useState('');
+  
   const [newInternship, setNewInternship] = useState({
     title: '',
     company: '',
@@ -24,6 +40,13 @@ function Admin() {
     deadline: ''
   });
 
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    deadline: '',
+    priority: 'Medium'
+  });
+
   useEffect(() => {
     if (!loggedInUser || !loggedInUser.isAdmin) {
       showMessage('Access denied. Admin only.', 'error');
@@ -32,6 +55,18 @@ function Admin() {
     }
     loadApplications();
   }, [loggedInUser, navigate]);
+
+  useEffect(() => {
+    if (contextApplications) {
+      setApplications(contextApplications);
+    }
+  }, [contextApplications]);
+
+  useEffect(() => {
+    if (contextTasks) {
+      setTasks(contextTasks);
+    }
+  }, [contextTasks]);
 
   const loadApplications = async () => {
     try {
@@ -73,6 +108,7 @@ function Admin() {
         type: 'Full-time',
         deadline: ''
       });
+      await fetchAllData();
     } catch (error) {
       showMessage('Failed to create internship', 'error');
     }
@@ -82,6 +118,7 @@ function Admin() {
     showConfirmModal('Delete this internship?', async () => {
       try {
         await internshipAPI.delete(internshipId);
+        await fetchAllData();
         showMessage('Internship deleted!', 'success');
       } catch (error) {
         showMessage('Failed to delete internship', 'error');
@@ -103,10 +140,57 @@ function Admin() {
     try {
       await applicationAPI.addFeedback(appId, feedback, evaluation);
       await loadApplications();
-      showMessage('Feedback added!', 'success');
+      showMessage('Evaluation updated!', 'success');
     } catch (error) {
-      showMessage('Failed to add feedback', 'error');
+      showMessage('Failed to update evaluation', 'error');
     }
+  };
+
+  const handleAssignTask = async () => {
+    if (!selectedAppForTask) {
+      showMessage('Please select an application', 'warning');
+      return;
+    }
+    if (!newTask.title || !newTask.deadline) {
+      showMessage('Task title and deadline are required', 'warning');
+      return;
+    }
+
+    try {
+      const result = await addTaskToApplication(selectedAppForTask, {
+        title: newTask.title,
+        description: newTask.description,
+        deadline: newTask.deadline,
+        priority: newTask.priority
+      });
+
+      if (result.success) {
+        showMessage('Task assigned successfully!', 'success');
+        setNewTask({ title: '', description: '', deadline: '', priority: 'Medium' });
+        setSelectedAppForTask('');
+        await fetchAllData();
+      } else {
+        showMessage(result.error || 'Failed to assign task', 'error');
+      }
+    } catch (error) {
+      showMessage('Failed to assign task', 'error');
+    }
+  };
+
+  const handleDeleteTask = (taskId) => {
+    showConfirmModal('Delete this task?', async () => {
+      try {
+        const result = await deleteTask(taskId);
+        if (result.success) {
+          showMessage('Task deleted!', 'success');
+          await fetchAllData();
+        } else {
+          showMessage(result.error || 'Failed to delete task', 'error');
+        }
+      } catch (error) {
+        showMessage('Failed to delete task', 'error');
+      }
+    });
   };
 
   const getStats = () => {
@@ -114,22 +198,36 @@ function Admin() {
       totalUsers: users.filter(u => !u.isAdmin).length,
       totalInternships: internships.length,
       totalApplications: applications.length,
-      totalSelected: applications.filter(a => a.evaluation === 'Selected').length
+      totalSelected: applications.filter(a => a.evaluation === 'Selected').length,
+      totalTasks: tasks.length,
+      pendingTasks: tasks.filter(t => t.status !== 'Completed').length
     };
   };
 
   const stats = getStats();
+  
   const filteredApplications = applications.filter(app => {
     const internship = internships.find(i => i.id === app.internshipId);
     const user = users.find(u => u.id === app.userId);
     const searchLower = searchQuery.toLowerCase();
     
     return (
-      internship?.title.toLowerCase().includes(searchLower) ||
-      user?.fullName.toLowerCase().includes(searchLower) ||
-      user?.email.toLowerCase().includes(searchLower)
+      internship?.title?.toLowerCase().includes(searchLower) ||
+      user?.fullName?.toLowerCase().includes(searchLower) ||
+      user?.email?.toLowerCase().includes(searchLower)
     );
   });
+
+  const getApplicationDetails = (appId) => {
+    const app = applications.find(a => a.id === appId);
+    if (!app) return { userName: 'Unknown', internshipTitle: 'Unknown' };
+    const user = users.find(u => u.id === app.userId);
+    const internship = internships.find(i => i.id === app.internshipId);
+    return {
+      userName: user?.fullName || 'Unknown',
+      internshipTitle: internship?.title || 'Unknown'
+    };
+  };
 
   return (
     <>
@@ -138,86 +236,44 @@ function Admin() {
       <section className="page-header">
         <div className="container">
           <h1>Admin Dashboard</h1>
-          <p>Manage internships, applications, and users</p>
+          <p>Manage internships, applications, tasks, and users</p>
         </div>
       </section>
 
-      <section className="admin-container" style={{ padding: '3rem 0' }}>
+      <section className="admin-container">
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '2rem' }}>
+          <div className="admin-layout">
             {/* Sidebar */}
             <div className="admin-sidebar">
               <h3>Navigation</h3>
               <nav className="admin-nav">
                 <button
                   onClick={() => setActiveTab('overview')}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    marginBottom: '0.5rem',
-                    textAlign: 'left',
-                    backgroundColor: activeTab === 'overview' ? 'rgba(180, 83, 9, 0.1)' : 'transparent',
-                    color: activeTab === 'overview' ? '#b45309' : '#6b7280',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    transition: 'all 0.2s'
-                  }}
+                  className={activeTab === 'overview' ? 'active' : ''}
                 >
                   📊 Overview
                 </button>
                 <button
                   onClick={() => setActiveTab('internships')}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    marginBottom: '0.5rem',
-                    textAlign: 'left',
-                    backgroundColor: activeTab === 'internships' ? 'rgba(180, 83, 9, 0.1)' : 'transparent',
-                    color: activeTab === 'internships' ? '#b45309' : '#6b7280',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    transition: 'all 0.2s'
-                  }}
+                  className={activeTab === 'internships' ? 'active' : ''}
                 >
                   💼 Internships
                 </button>
                 <button
                   onClick={() => setActiveTab('applications')}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    marginBottom: '0.5rem',
-                    textAlign: 'left',
-                    backgroundColor: activeTab === 'applications' ? 'rgba(180, 83, 9, 0.1)' : 'transparent',
-                    color: activeTab === 'applications' ? '#b45309' : '#6b7280',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    transition: 'all 0.2s'
-                  }}
+                  className={activeTab === 'applications' ? 'active' : ''}
                 >
                   📋 Applications
                 </button>
                 <button
+                  onClick={() => setActiveTab('tasks')}
+                  className={activeTab === 'tasks' ? 'active' : ''}
+                >
+                  ✅ Tasks
+                </button>
+                <button
                   onClick={() => setActiveTab('users')}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem',
-                    marginBottom: '0.5rem',
-                    textAlign: 'left',
-                    backgroundColor: activeTab === 'users' ? 'rgba(180, 83, 9, 0.1)' : 'transparent',
-                    color: activeTab === 'users' ? '#b45309' : '#6b7280',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                    fontWeight: '600',
-                    transition: 'all 0.2s'
-                  }}
+                  className={activeTab === 'users' ? 'active' : ''}
                 >
                   👥 Users
                 </button>
@@ -230,22 +286,34 @@ function Admin() {
               {activeTab === 'overview' && (
                 <div className="admin-section">
                   <h2>Dashboard Overview</h2>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
-                    <div style={{ background: 'linear-gradient(135deg, #b45309 0%, #d97706 100%)', color: 'white', padding: '2rem', borderRadius: '0.75rem', textAlign: 'center', boxShadow: '0 10px 15px rgba(180, 83, 9, 0.12)' }}>
-                      <div style={{ fontSize: '2.25rem', fontWeight: '800', margin: '1rem 0' }}>{stats.totalUsers}</div>
-                      <div style={{ fontSize: '0.875rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Students</div>
+                  <div className="admin-stats-grid">
+                    <div className="admin-stat-card">
+                      <div className="admin-stat-value">{stats.totalUsers}</div>
+                      <div className="admin-stat-label">Total Students</div>
                     </div>
-                    <div style={{ background: 'linear-gradient(135deg, #b45309 0%, #d97706 100%)', color: 'white', padding: '2rem', borderRadius: '0.75rem', textAlign: 'center', boxShadow: '0 10px 15px rgba(180, 83, 9, 0.12)' }}>
-                      <div style={{ fontSize: '2.25rem', fontWeight: '800', margin: '1rem 0' }}>{stats.totalInternships}</div>
-                      <div style={{ fontSize: '0.875rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Internships</div>
+                    <div className="admin-stat-card success">
+                      <div className="admin-stat-value">{stats.totalInternships}</div>
+                      <div className="admin-stat-label">Total Internships</div>
                     </div>
-                    <div style={{ background: 'linear-gradient(135deg, #b45309 0%, #d97706 100%)', color: 'white', padding: '2rem', borderRadius: '0.75rem', textAlign: 'center', boxShadow: '0 10px 15px rgba(180, 83, 9, 0.12)' }}>
-                      <div style={{ fontSize: '2.25rem', fontWeight: '800', margin: '1rem 0' }}>{stats.totalApplications}</div>
-                      <div style={{ fontSize: '0.875rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Applications</div>
+                    <div className="admin-stat-card warning">
+                      <div className="admin-stat-value">{stats.totalApplications}</div>
+                      <div className="admin-stat-label">Total Applications</div>
                     </div>
-                    <div style={{ background: 'linear-gradient(135deg, #b45309 0%, #d97706 100%)', color: 'white', padding: '2rem', borderRadius: '0.75rem', textAlign: 'center', boxShadow: '0 10px 15px rgba(180, 83, 9, 0.12)' }}>
-                      <div style={{ fontSize: '2.25rem', fontWeight: '800', margin: '1rem 0' }}>{stats.totalSelected}</div>
-                      <div style={{ fontSize: '0.875rem', opacity: 0.9, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Selected</div>
+                    <div className="admin-stat-card info">
+                      <div className="admin-stat-value">{stats.totalSelected}</div>
+                      <div className="admin-stat-label">Selected</div>
+                    </div>
+                  </div>
+
+                  <h3 style={{ marginTop: '2rem', marginBottom: '1rem' }}>Task Statistics</h3>
+                  <div className="admin-stats-grid">
+                    <div className="admin-stat-card">
+                      <div className="admin-stat-value">{stats.totalTasks}</div>
+                      <div className="admin-stat-label">Total Tasks</div>
+                    </div>
+                    <div className="admin-stat-card warning">
+                      <div className="admin-stat-value">{stats.pendingTasks}</div>
+                      <div className="admin-stat-label">Pending Tasks</div>
                     </div>
                   </div>
                 </div>
@@ -256,46 +324,44 @@ function Admin() {
                 <div className="admin-section">
                   <h2>Manage Internships ({internships.length})</h2>
                   
-                  {/* Create Form */}
-                  <div style={{ backgroundColor: '#fffbf0', padding: '1.5rem', borderRadius: '0.75rem', marginBottom: '2rem', marginTop: '1.5rem', border: '2px dashed #f3e8e0' }}>
-                    <h3 style={{ marginBottom: '1rem' }}>Create New Internship</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-                      <input type="text" placeholder="Title *" value={newInternship.title} onChange={(e) => setNewInternship({...newInternship, title: e.target.value})} style={{ padding: '0.75rem', border: '2px solid #f3e8e0', borderRadius: '0.5rem', fontFamily: 'inherit' }} />
-                      <input type="text" placeholder="Company *" value={newInternship.company} onChange={(e) => setNewInternship({...newInternship, company: e.target.value})} style={{ padding: '0.75rem', border: '2px solid #f3e8e0', borderRadius: '0.5rem', fontFamily: 'inherit' }} />
-                      <input type="text" placeholder="Duration" value={newInternship.duration} onChange={(e) => setNewInternship({...newInternship, duration: e.target.value})} style={{ padding: '0.75rem', border: '2px solid #f3e8e0', borderRadius: '0.5rem', fontFamily: 'inherit' }} />
-                      <input type="text" placeholder="Location" value={newInternship.location} onChange={(e) => setNewInternship({...newInternship, location: e.target.value})} style={{ padding: '0.75rem', border: '2px solid #f3e8e0', borderRadius: '0.5rem', fontFamily: 'inherit' }} />
-                      <input type="text" placeholder="Stipend" value={newInternship.stipend} onChange={(e) => setNewInternship({...newInternship, stipend: e.target.value})} style={{ padding: '0.75rem', border: '2px solid #f3e8e0', borderRadius: '0.5rem', fontFamily: 'inherit' }} />
-                      <input type="date" value={newInternship.deadline} onChange={(e) => setNewInternship({...newInternship, deadline: e.target.value})} style={{ padding: '0.75rem', border: '2px solid #f3e8e0', borderRadius: '0.5rem', fontFamily: 'inherit' }} />
+                  <div className="create-form-container">
+                    <h3>Create New Internship</h3>
+                    <div className="create-form-grid">
+                      <input type="text" placeholder="Title *" value={newInternship.title} onChange={(e) => setNewInternship({...newInternship, title: e.target.value})} />
+                      <input type="text" placeholder="Company *" value={newInternship.company} onChange={(e) => setNewInternship({...newInternship, company: e.target.value})} />
+                      <input type="text" placeholder="Duration" value={newInternship.duration} onChange={(e) => setNewInternship({...newInternship, duration: e.target.value})} />
+                      <input type="text" placeholder="Location" value={newInternship.location} onChange={(e) => setNewInternship({...newInternship, location: e.target.value})} />
+                      <input type="text" placeholder="Stipend" value={newInternship.stipend} onChange={(e) => setNewInternship({...newInternship, stipend: e.target.value})} />
+                      <input type="date" value={newInternship.deadline} onChange={(e) => setNewInternship({...newInternship, deadline: e.target.value})} />
                     </div>
-                    <textarea placeholder="Description" value={newInternship.description} onChange={(e) => setNewInternship({...newInternship, description: e.target.value})} style={{ width: '100%', padding: '0.75rem', border: '2px solid #f3e8e0', borderRadius: '0.5rem', marginTop: '1rem', fontFamily: 'inherit', minHeight: '80px' }} />
-                    <input type="text" placeholder="Skills (comma-separated)" value={newInternship.skills} onChange={(e) => setNewInternship({...newInternship, skills: e.target.value})} style={{ width: '100%', padding: '0.75rem', border: '2px solid #f3e8e0', borderRadius: '0.5rem', marginTop: '1rem', fontFamily: 'inherit' }} />
+                    <textarea className="full-width" placeholder="Description" value={newInternship.description} onChange={(e) => setNewInternship({...newInternship, description: e.target.value})} />
+                    <input className="full-width" type="text" placeholder="Skills (comma-separated)" value={newInternship.skills} onChange={(e) => setNewInternship({...newInternship, skills: e.target.value})} />
                     <button className="btn btn-primary" onClick={handleCreateInternship} style={{ marginTop: '1rem' }}>Create Internship</button>
                   </div>
 
-                  {/* Internships List */}
                   <h3 style={{ marginTop: '2rem', marginBottom: '1rem' }}>All Internships</h3>
-                  <div className="admin-table" style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                      <thead style={{ background: 'linear-gradient(135deg, #b45309 0%, #92400e 100%)', color: 'white' }}>
+                  <div className="admin-table">
+                    <table>
+                      <thead>
                         <tr>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Title</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Company</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Stipend</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Applications</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Deadline</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Action</th>
+                          <th>Title</th>
+                          <th>Company</th>
+                          <th>Stipend</th>
+                          <th>Applications</th>
+                          <th>Deadline</th>
+                          <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
                         {internships.map(internship => (
-                          <tr key={internship.id} style={{ borderBottom: '1px solid #f3e8e0' }}>
-                            <td style={{ padding: '1rem', color: '#6b7280' }}><strong>{internship.title}</strong></td>
-                            <td style={{ padding: '1rem', color: '#6b7280' }}>{internship.company}</td>
-                            <td style={{ padding: '1rem', color: '#6b7280' }}>{internship.stipend}</td>
-                            <td style={{ padding: '1rem', color: '#6b7280' }}>{internship.applicants}</td>
-                            <td style={{ padding: '1rem', color: '#6b7280' }}>{formatDate(internship.deadline)}</td>
-                            <td style={{ padding: '1rem' }}>
-                              <button className="btn btn-danger btn-sm" onClick={() => handleDeleteInternship(internship.id)} style={{ padding: '0.5rem 0.75rem', fontSize: '0.875rem' }}>Delete</button>
+                          <tr key={internship.id}>
+                            <td><strong>{internship.title}</strong></td>
+                            <td>{internship.company}</td>
+                            <td>{internship.stipend}</td>
+                            <td>{internship.applicants}</td>
+                            <td>{formatDate(internship.deadline)}</td>
+                            <td>
+                              <button className="btn btn-danger btn-sm" onClick={() => handleDeleteInternship(internship.id)}>Delete</button>
                             </td>
                           </tr>
                         ))}
@@ -310,26 +376,26 @@ function Admin() {
                 <div className="admin-section">
                   <h2>Review Applications ({filteredApplications.length})</h2>
                   
-                  <div style={{ marginBottom: '1.5rem', marginTop: '1.5rem' }}>
+                  <div className="search-container">
                     <input
                       type="text"
+                      className="search-input"
                       placeholder="Search by internship title or student name..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      style={{ width: '100%', padding: '0.75rem', border: '2px solid #f3e8e0', borderRadius: '0.5rem', fontFamily: 'inherit' }}
                     />
                   </div>
 
-                  <div className="admin-table" style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#fffbf0', borderRadius: '0.75rem' }}>
-                      <thead style={{ background: 'linear-gradient(135deg, #b45309 0%, #92400e 100%)', color: 'white' }}>
+                  <div className="admin-table">
+                    <table>
+                      <thead>
                         <tr>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Student</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Internship</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Applied</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Status</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Evaluation</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Action</th>
+                          <th>Student</th>
+                          <th>Internship</th>
+                          <th>Applied</th>
+                          <th>Status</th>
+                          <th>Evaluation</th>
+                          <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -337,29 +403,29 @@ function Admin() {
                           const internship = internships.find(i => i.id === app.internshipId);
                           const user = users.find(u => u.id === app.userId);
                           return (
-                            <tr key={app.id} style={{ borderBottom: '1px solid #f3e8e0' }}>
-                              <td style={{ padding: '1rem', color: '#6b7280' }}>{user?.fullName || 'Unknown'}</td>
-                              <td style={{ padding: '1rem', color: '#6b7280' }}><strong>{internship?.title || 'N/A'}</strong></td>
-                              <td style={{ padding: '1rem', color: '#6b7280' }}>{formatDate(app.appliedAt)}</td>
-                              <td style={{ padding: '1rem', color: '#6b7280' }}>
-                                <select value={app.status} onChange={(e) => handleUpdateApplicationStatus(app.id, e.target.value)} style={{ padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}>
+                            <tr key={app.id}>
+                              <td>{user?.fullName || 'Unknown'}</td>
+                              <td><strong>{internship?.title || 'N/A'}</strong></td>
+                              <td>{formatDate(app.appliedAt)}</td>
+                              <td>
+                                <select className="status-select" value={app.status} onChange={(e) => handleUpdateApplicationStatus(app.id, e.target.value)}>
                                   <option>Applied</option>
                                   <option>Under Review</option>
                                   <option>Shortlisted</option>
                                   <option>Rejected</option>
                                 </select>
                               </td>
-                              <td style={{ padding: '1rem', color: '#6b7280' }}>
-                                <span style={{ display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '0.75rem', fontSize: '0.875rem', fontWeight: '700', backgroundColor: app.evaluation === 'Selected' ? 'rgba(22, 163, 74, 0.1)' : app.evaluation === 'Rejected' ? 'rgba(220, 38, 38, 0.1)' : 'rgba(180, 83, 9, 0.1)', color: app.evaluation === 'Selected' ? '#16a34a' : app.evaluation === 'Rejected' ? '#dc2626' : '#b45309' }}>
-                                  {app.evaluation}
+                              <td>
+                                <span className={`evaluation-badge ${app.evaluation === 'Selected' ? 'selected' : app.evaluation === 'Rejected' ? 'rejected' : 'pending'}`}>
+                                  {app.evaluation || 'Pending'}
                                 </span>
                               </td>
-                              <td style={{ padding: '1rem' }}>
-                                <select onChange={(e) => handleAddFeedback(app.id, 'Good performance', e.target.value)} defaultValue="" style={{ padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}>
+                              <td>
+                                <select className="action-select" onChange={(e) => { if(e.target.value) handleAddFeedback(app.id, 'Evaluation set by admin', e.target.value); e.target.value = ''; }} defaultValue="">
                                   <option value="">Set Evaluation</option>
-                                  <option value="Selected">✓ Selected</option>
-                                  <option value="Rejected">✗ Rejected</option>
-                                  <option value="Shortlisted">Shortlisted</option>
+                                  <option value="Selected">✓ Select</option>
+                                  <option value="Rejected">✗ Reject</option>
+                                  <option value="Shortlisted">⏳ Shortlist</option>
                                 </select>
                               </td>
                             </tr>
@@ -371,30 +437,130 @@ function Admin() {
                 </div>
               )}
 
+              {/* TASKS TAB */}
+              {activeTab === 'tasks' && (
+                <div className="admin-section">
+                  <h2>Manage Tasks ({tasks.length})</h2>
+                  
+                  <div className="task-form-container">
+                    <h4>📝 Assign New Task to Intern</h4>
+                    <div className="task-form-grid">
+                      <select 
+                        value={selectedAppForTask} 
+                        onChange={(e) => setSelectedAppForTask(e.target.value)}
+                      >
+                        <option value="">Select Application *</option>
+                        {applications.filter(a => a.status === 'Shortlisted' || a.evaluation === 'Selected').map(app => {
+                          const user = users.find(u => u.id === app.userId);
+                          const internship = internships.find(i => i.id === app.internshipId);
+                          return (
+                            <option key={app.id} value={app.id}>
+                              {user?.fullName} - {internship?.title}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <select 
+                        value={newTask.priority} 
+                        onChange={(e) => setNewTask({...newTask, priority: e.target.value})}
+                      >
+                        <option value="Low">Low Priority</option>
+                        <option value="Medium">Medium Priority</option>
+                        <option value="High">High Priority</option>
+                      </select>
+                      <input 
+                        type="text" 
+                        placeholder="Task Title *" 
+                        value={newTask.title}
+                        onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                      />
+                      <input 
+                        type="date" 
+                        placeholder="Deadline *"
+                        value={newTask.deadline}
+                        onChange={(e) => setNewTask({...newTask, deadline: e.target.value})}
+                      />
+                      <textarea 
+                        placeholder="Task Description (optional)"
+                        value={newTask.description}
+                        onChange={(e) => setNewTask({...newTask, description: e.target.value})}
+                      />
+                    </div>
+                    <button className="btn btn-primary" onClick={handleAssignTask} style={{ marginTop: '1rem' }}>
+                      Assign Task
+                    </button>
+                    {applications.filter(a => a.status === 'Shortlisted' || a.evaluation === 'Selected').length === 0 && (
+                      <p style={{ marginTop: '1rem', color: '#d97706', fontSize: '0.875rem' }}>
+                        ⚠️ No shortlisted or selected applications. Shortlist or select an application first to assign tasks.
+                      </p>
+                    )}
+                  </div>
+
+                  <h3 style={{ marginTop: '2rem', marginBottom: '1rem' }}>All Assigned Tasks</h3>
+                  
+                  {tasks.length === 0 ? (
+                    <div className="empty-state" style={{ padding: '2rem', textAlign: 'center' }}>
+                      <p>No tasks assigned yet. Assign tasks to shortlisted or selected interns above.</p>
+                    </div>
+                  ) : (
+                    <div className="task-list">
+                      {tasks.map(task => {
+                        const { userName, internshipTitle } = getApplicationDetails(task.applicationId);
+                        return (
+                          <div key={task.id} className="task-item">
+                            <div className="task-item-info">
+                              <h5>{task.title}</h5>
+                              <p>{task.description || 'No description provided'}</p>
+                              <div className="task-item-meta">
+                                <span>👤 {userName}</span>
+                                <span>💼 {internshipTitle}</span>
+                                <span>📅 Due: {formatDate(task.deadline)}</span>
+                                <span>🎯 {task.priority} Priority</span>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                              <span className={`task-status-badge ${task.status === 'Completed' ? 'completed' : 'pending'}`}>
+                                {task.status || 'Pending'}
+                              </span>
+                              <button 
+                                className="btn btn-danger btn-sm" 
+                                onClick={() => handleDeleteTask(task.id)}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* USERS TAB */}
               {activeTab === 'users' && (
                 <div className="admin-section">
                   <h2>Manage Users</h2>
                   <h3 style={{ marginTop: '2rem', marginBottom: '1rem' }}>All Students ({users.filter(u => !u.isAdmin).length})</h3>
-                  <div className="admin-table" style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', backgroundColor: '#fffbf0' }}>
-                      <thead style={{ background: 'linear-gradient(135deg, #b45309 0%, #92400e 100%)', color: 'white' }}>
+                  <div className="admin-table">
+                    <table>
+                      <thead>
                         <tr>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Name</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Email</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>College</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Branch</th>
-                          <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '700', textTransform: 'uppercase', fontSize: '0.875rem', letterSpacing: '0.5px' }}>Joined</th>
+                          <th>Name</th>
+                          <th>Email</th>
+                          <th>College</th>
+                          <th>Branch</th>
+                          <th>Joined</th>
                         </tr>
                       </thead>
                       <tbody>
                         {users.filter(u => !u.isAdmin).map(user => (
-                          <tr key={user.id} style={{ borderBottom: '1px solid #f3e8e0' }}>
-                            <td style={{ padding: '1rem', color: '#6b7280' }}><strong>{user.fullName}</strong></td>
-                            <td style={{ padding: '1rem', color: '#6b7280' }}>{user.email}</td>
-                            <td style={{ padding: '1rem', color: '#6b7280' }}>{user.college}</td>
-                            <td style={{ padding: '1rem', color: '#6b7280' }}>{user.branch}</td>
-                            <td style={{ padding: '1rem', color: '#6b7280' }}>{formatDate(user.createdAt)}</td>
+                          <tr key={user.id}>
+                            <td><strong>{user.fullName}</strong></td>
+                            <td>{user.email}</td>
+                            <td>{user.college}</td>
+                            <td>{user.branch}</td>
+                            <td>{formatDate(user.createdAt)}</td>
                           </tr>
                         ))}
                       </tbody>

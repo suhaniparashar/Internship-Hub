@@ -34,7 +34,7 @@ function Login() {
         const result = await login('demo', 'demo123');
         if (result.success) {
             showMessage('Logged in as Demo User!', 'success');
-            setTimeout(() => navigate('/dashboard'), 1000);
+            navigate('/dashboard');
         } else {
             showMessage(result.error || 'Login failed', 'error');
         }
@@ -46,13 +46,13 @@ function Login() {
 
     const handleAdminLogin = async (e) => {
         e.preventDefault();
-        if (adminPassword === 'suhani123') {
-            const result = await login('admin', 'suhani123');
+        if (adminPassword === 'admin123') {
+            const result = await login('admin', 'admin123');
             if (result.success) {
                 showMessage(`Logged in as Admin!`, 'success');
                 setShowAdminModal(false);
                 setAdminPassword('');
-                setTimeout(() => navigate('/admin'), 1000);
+                navigate('/admin');
             } else {
                 showMessage(result.error || 'Login failed', 'error');
             }
@@ -83,25 +83,9 @@ function Login() {
         if (result.success) {
             const isAdmin = result.user.role === 'admin' || result.user.isAdmin;
             setMessage({ text: `✅ ${isAdmin ? 'Admin' : 'User'} login successful! Redirecting...`, type: 'success' });
-            setTimeout(() => navigate(isAdmin ? '/admin' : '/dashboard'), 1000);
+            navigate(isAdmin ? '/admin' : '/dashboard');
         } else {
-            // Fallback: Try to login with registered users in localStorage
-            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-            const foundUser = registeredUsers.find(u => 
-                (u.username.toLowerCase() === loginIdentifier.toLowerCase() || 
-                 u.email.toLowerCase() === loginIdentifier.toLowerCase()) &&
-                u.password === loginPassword
-            );
-
-            if (foundUser) {
-                const { password: _, ...userWithoutPassword } = foundUser;
-                // Manually set logged in user using context
-                localStorage.setItem('loggedInUser', JSON.stringify(userWithoutPassword));
-                setMessage({ text: '✅ Offline login successful! Redirecting...', type: 'success' });
-                setTimeout(() => navigate('/dashboard'), 1000);
-            } else {
-                setMessage({ text: '❌ Invalid username or password', type: 'error' });
-            }
+            setMessage({ text: '❌ Invalid username or password', type: 'error' });
         }
     };
 

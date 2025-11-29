@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAppContext } from '../context/AppContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { getAllInternships } from '../utils/data';
-import { checkLoginStatus } from '../utils/auth';
 import { showMessage } from '../utils/notifications';
 
 function Dashboard() {
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
+    const { loggedInUser, getUserApplications, internships, applications } = useAppContext();
     const [stats, setStats] = useState({
         applications: 0,
         pending: 0,
-        available: 6,
+        available: 0,
         selected: 0
     });
     const [profileData, setProfileData] = useState({
@@ -24,7 +23,6 @@ function Dashboard() {
     const [recentApplications, setRecentApplications] = useState([]);
 
     useEffect(() => {
-        const loggedInUser = checkLoginStatus();
         if (!loggedInUser) {
             showMessage('Please login to access this page', 'warning');
             setTimeout(() => navigate('/login'), 1000);
@@ -36,39 +34,50 @@ function Dashboard() {
             return;
         }
         
-        setUser(loggedInUser);
-        loadDashboardStats(loggedInUser);
-        loadProfileInfo(loggedInUser);
-    }, [navigate]);
+        loadDashboardStats();
+        loadProfileInfo();
+    }, [loggedInUser, navigate, applications, internships]);
 
-    const loadDashboardStats = (loggedInUser) => {
-        const enrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
-        const userEnrollments = enrollments.filter(e => e.userEmail === loggedInUser.email);
-        const totalInternships = getAllInternships().length;
-        const pendingApplications = userEnrollments.filter(e => e.status === 'Pending').length;
-        const selectedApplications = userEnrollments.filter(e => e.status === 'Selected').length;
+    const loadDashboardStats = () => {
+        const userApps = getUserApplications();
+        const pendingApps = userApps.filter(a => 
+            a.status === 'Applied' || a.status === 'Under Review'
+        ).length;
+        const selectedApps = userApps.filter(a => 
+            a.evaluation === 'Selected' || a.status === 'Shortlisted'
+        ).length;
 
         setStats({
-            applications: userEnrollments.length,
-            pending: pendingApplications,
-            available: totalInternships,
-            selected: selectedApplications
+            applications: userApps.length,
+            pending: pendingApps,
+            available: internships.length,
+            selected: selectedApps
         });
 
-        // Load recent applications (last 3)
-        const recent = userEnrollments
+        // Load recent applications (last 3) enriched with internship details
+        const recent = userApps
+            .map(app => {
+                const internship = internships.find(i => i.id === app.internshipId);
+                return {
+                    ...app,
+                    internshipTitle: internship?.title || 'Unknown Internship',
+                    company: internship?.company || 'Unknown Company'
+                };
+            })
             .sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt))
             .slice(0, 3);
         setRecentApplications(recent);
     };
 
-    const loadProfileInfo = (loggedInUser) => {
-        setProfileData({
-            username: loggedInUser.username || '',
-            email: loggedInUser.email || '',
-            college: loggedInUser.college || '',
-            branch: loggedInUser.branch || ''
-        });
+    const loadProfileInfo = () => {
+        if (loggedInUser) {
+            setProfileData({
+                username: loggedInUser.username || '',
+                email: loggedInUser.email || '',
+                college: loggedInUser.college || '',
+                branch: loggedInUser.branch || ''
+            });
+        }
     };
 
     const handleProfileChange = (e) => {
@@ -81,7 +90,7 @@ function Dashboard() {
     const updateProfile = (e) => {
         e.preventDefault();
         
-        const isDemoUser = user.email === 'demo@internhub.com' || user.email === '2400033073@kluniversity.in' || user.email === 'admin@internhub.com';
+        const isDemoUser = loggedInUser.email === 'demo@internhub.com' || loggedInUser.email === '2400033073@kluniversity.in' || loggedInUser.email === 'admin@internhub.com';
         if (isDemoUser) {
             showMessage('Demo users cannot edit profile information', 'warning');
             return;
@@ -95,13 +104,12 @@ function Dashboard() {
         }
         
         // Update logged in user
-        const updatedUser = { ...user, college, branch };
+        const updatedUser = { ...loggedInUser, college, branch };
         localStorage.setItem('loggedInUser', JSON.stringify(updatedUser));
-        setUser(updatedUser);
         
         // Update in users array
         const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const userIndex = users.findIndex(u => u.email === user.email);
+        const userIndex = users.findIndex(u => u.email === loggedInUser.email);
         if (userIndex !== -1) {
             users[userIndex].college = college;
             users[userIndex].branch = branch;
@@ -112,7 +120,7 @@ function Dashboard() {
     };
 
     const resetProfileForm = () => {
-        loadProfileInfo(user);
+        loadProfileInfo();
         showMessage('Profile form reset', 'info');
     };
 
@@ -129,9 +137,9 @@ function Dashboard() {
         return name.substring(0, 2).toUpperCase();
     };
 
-    const isDemoUser = user && (user.email === 'demo@internhub.com' || user.email === '2400033073@kluniversity.in' || user.email === 'admin@internhub.com');
+    const isDemoUser = loggedInUser && (loggedInUser.email === 'demo@internhub.com' || loggedInUser.email === '2400033073@kluniversity.in' || loggedInUser.email === 'admin@internhub.com');
 
-    if (!user) return null;
+    if (!loggedInUser) return null;
 
     return (
         <>
@@ -141,7 +149,7 @@ function Dashboard() {
             <section className="page-header">
                 <div className="container">
                     <h1>Student Dashboard</h1>
-                    <p>Welcome back, <span id="studentName">{user.username}</span>! 👋</p>
+                    <p>Welcome back, <span id="studentName">{loggedInUser.fullName || loggedInUser.username}</span>! 👋</p>
                 </div>
             </section>
 
@@ -231,41 +239,41 @@ function Dashboard() {
                     <div className="student-info-card">
                         <div className="student-info-header">
                             <div className="student-avatar">
-                                <span id="studentInitials">{getInitials(user.username)}</span>
+                                <span id="studentInitials">{getInitials(loggedInUser.fullName || loggedInUser.username)}</span>
                             </div>
                             <div className="student-main-info">
-                                <h2 id="displayStudentName">{user.username}</h2>
-                                {user.rollId && <p id="displayRollId" className="roll-id">Roll ID: {user.rollId}</p>}
+                                <h2 id="displayStudentName">{loggedInUser.fullName || loggedInUser.username}</h2>
+                                {loggedInUser.rollId && <p id="displayRollId" className="roll-id">Roll ID: {loggedInUser.rollId}</p>}
                             </div>
                         </div>
                         
                         <div className="student-details-grid">
                             <div className="info-item">
                                 <span className="info-label">📧 Email</span>
-                                <span className="info-value" id="displayEmail">{user.email || 'Not provided'}</span>
+                                <span className="info-value" id="displayEmail">{loggedInUser.email || 'Not provided'}</span>
                             </div>
                             <div className="info-item">
                                 <span className="info-label">📱 Phone</span>
-                                <span className="info-value" id="displayPhone">{user.phone || 'Not provided'}</span>
+                                <span className="info-value" id="displayPhone">{loggedInUser.phone || 'Not provided'}</span>
                             </div>
                             <div className="info-item">
                                 <span className="info-label"><span className="label-icon label-icon-college"></span> College</span>
-                                <span className="info-value" id="displayCollege">{user.college || 'Not provided'}</span>
+                                <span className="info-value" id="displayCollege">{loggedInUser.college || 'Not provided'}</span>
                             </div>
                             <div className="info-item">
                                 <span className="info-label"><span className="label-icon label-icon-book"></span> Branch</span>
-                                <span className="info-value" id="displayBranch">{user.branch || 'Not provided'}</span>
+                                <span className="info-value" id="displayBranch">{loggedInUser.branch || 'Not provided'}</span>
                             </div>
-                            {user.year && (
+                            {loggedInUser.year && (
                                 <div className="info-item">
                                     <span className="info-label"><span className="label-icon label-icon-graduation"></span> Year</span>
-                                    <span className="info-value" id="displayYear">{user.year}</span>
+                                    <span className="info-value" id="displayYear">{loggedInUser.year}</span>
                                 </div>
                             )}
-                            {user.semester && (
+                            {loggedInUser.semester && (
                                 <div className="info-item">
                                     <span className="info-label">📖 Semester</span>
-                                    <span className="info-value" id="displaySemester">{user.semester}</span>
+                                    <span className="info-value" id="displaySemester">{loggedInUser.semester}</span>
                                 </div>
                             )}
                         </div>

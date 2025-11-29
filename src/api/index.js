@@ -156,11 +156,37 @@ const generateUsers = () => {
     createdAt: new Date().toISOString()
   });
 
+  // Add demo user for easy testing
+  users.push({
+    id: 'demo-1',
+    username: 'demo',
+    email: 'demo@internhub.com',
+    password: 'demo123',
+    fullName: 'Demo Student',
+    role: 'student',
+    college: 'Demo University',
+    branch: 'Computer Science',
+    isAdmin: false,
+    createdAt: new Date().toISOString()
+  });
+
   return users;
 };
 
 // Initialize localStorage with comprehensive demo data
+const STORAGE_VERSION = '2.0'; // Increment to force re-initialization
+
 const initializeLocalStorage = () => {
+  // Check version - if different, clear and reinitialize
+  const storedVersion = localStorage.getItem('storageVersion');
+  if (storedVersion !== STORAGE_VERSION) {
+    localStorage.removeItem('internships');
+    localStorage.removeItem('users');
+    localStorage.removeItem('applications');
+    localStorage.removeItem('tasks');
+    localStorage.setItem('storageVersion', STORAGE_VERSION);
+  }
+
   if (!localStorage.getItem('internships')) {
     localStorage.setItem('internships', JSON.stringify(generateInternships()));
   }
@@ -204,7 +230,11 @@ export const userAPI = {
 
   login: async (username, password) => {
     const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = users.find(u => 
+      (u.username.toLowerCase() === username.toLowerCase() || 
+       u.email.toLowerCase() === username.toLowerCase()) && 
+      u.password === password
+    );
     if (!user) throw new Error('Invalid credentials');
     return user;
   },
@@ -289,7 +319,11 @@ export const internshipAPI = {
 
 // ===== APPLICATION API =====
 export const applicationAPI = {
-  create: async (userId, internshipId) => {
+  create: async (applicationData) => {
+    // Support both object format { userId, internshipId } and separate params
+    const userId = applicationData.userId || applicationData;
+    const internshipId = applicationData.internshipId || arguments[1];
+    
     const applications = JSON.parse(localStorage.getItem('applications') || '[]');
     
     if (applications.find(a => a.userId === userId && a.internshipId === internshipId)) {
@@ -361,6 +395,19 @@ export const applicationAPI = {
 
 // ===== TASK API =====
 export const taskAPI = {
+  getAll: async () => {
+    const applications = JSON.parse(localStorage.getItem('applications') || '[]');
+    const allTasks = [];
+    applications.forEach(app => {
+      if (app.tasks) {
+        app.tasks.forEach(task => {
+          allTasks.push({ ...task, applicationId: app.id });
+        });
+      }
+    });
+    return allTasks;
+  },
+
   create: async (applicationId, taskData) => {
     const applications = JSON.parse(localStorage.getItem('applications') || '[]');
     const index = applications.findIndex(a => a.id === applicationId);

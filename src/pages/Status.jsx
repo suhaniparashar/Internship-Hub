@@ -1,57 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAppContext } from '../context/AppContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { checkLoginStatus } from '../utils/auth';
-import { getRandomStatus } from '../utils/data';
 import { showMessage } from '../utils/notifications';
 
 function Status() {
     const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-    const [applications, setApplications] = useState([]);
+    const { loggedInUser, getUserApplications, internships, applications } = useAppContext();
+    const [userApplications, setUserApplications] = useState([]);
 
     useEffect(() => {
-        const loggedInUser = checkLoginStatus();
         if (!loggedInUser) {
             showMessage('Please login to access this page', 'warning');
             setTimeout(() => navigate('/login'), 1000);
             return;
         }
-        setUser(loggedInUser);
-        loadApplicationStatus(loggedInUser);
-    }, [navigate]);
+        loadApplicationStatus();
+    }, [loggedInUser, navigate, applications]);
 
-    const loadApplicationStatus = (loggedInUser) => {
-        const enrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
-        const userEnrollments = enrollments.filter(e => e.userEmail === loggedInUser.email);
-        
-        // Assign random status if not set
-        userEnrollments.forEach(e => {
-            if (!e.status) {
-                e.status = getRandomStatus();
-            }
+    const loadApplicationStatus = () => {
+        const userApps = getUserApplications();
+        // Enrich with internship details
+        const enrichedApps = userApps.map(app => {
+            const internship = internships.find(i => i.id === app.internshipId);
+            return {
+                ...app,
+                internshipTitle: internship?.title || 'Unknown Internship',
+                company: internship?.company || 'Unknown Company',
+                status: app.status || 'Applied',
+                evaluation: app.evaluation || 'Not Evaluated'
+            };
         });
-        
-        // Save updated statuses
-        localStorage.setItem('enrollments', JSON.stringify(enrollments));
-        setApplications(userEnrollments);
+        setUserApplications(enrichedApps);
     };
 
-    const refreshStatus = () => {
-        const enrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
-        enrollments.forEach(e => {
-            if (e.userEmail === user.email) {
-                e.status = getRandomStatus();
-            }
-        });
-        
-        localStorage.setItem('enrollments', JSON.stringify(enrollments));
-        showMessage('Status refreshed!', 'info');
-        loadApplicationStatus(user);
+    const getStatusClass = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'applied': return 'status-pending';
+            case 'under review': return 'status-pending';
+            case 'shortlisted': return 'status-selected';
+            case 'rejected': return 'status-rejected';
+            default: return 'status-pending';
+        }
     };
 
-    if (!user) return null;
+    const getEvaluationClass = (evaluation) => {
+        switch (evaluation?.toLowerCase()) {
+            case 'selected': return 'status-selected';
+            case 'rejected': return 'status-rejected';
+            case 'shortlisted': return 'status-pending';
+            default: return 'status-pending';
+        }
+    };
+
+    if (!loggedInUser) return null;
 
     return (
         <>
@@ -70,11 +73,11 @@ function Status() {
                 <div className="container">
                     <div className="legend-items">
                         <div className="legend-item">
-                            <span className="status-badge status-pending">Pending</span>
-                            <p>Under review</p>
+                            <span className="status-badge status-pending">Applied / Under Review</span>
+                            <p>Application received</p>
                         </div>
                         <div className="legend-item">
-                            <span className="status-badge status-selected">Selected</span>
+                            <span className="status-badge status-selected">Shortlisted / Selected</span>
                             <p>Congratulations!</p>
                         </div>
                         <div className="legend-item">
@@ -89,27 +92,34 @@ function Status() {
             <section className="status-section">
                 <div className="container">
                     <div className="status-header">
-                        <h2>Your Applications</h2>
-                        {applications.length > 0 && (
-                            <button className="btn btn-outline" onClick={refreshStatus}><span className="btn-icon btn-icon-reset"></span> Refresh Status</button>
-                        )}
+                        <h2>Your Applications ({userApplications.length})</h2>
                     </div>
                     
                     <div className="status-container" id="statusContainer">
-                        {applications.length === 0 ? (
-                            <p className="no-applications">
-                                No applications to track. <Link to="/internships">Apply to internships</Link>
-                            </p>
+                        {userApplications.length === 0 ? (
+                            <div className="empty-state">
+                                <p className="no-applications">
+                                    No applications to track. <Link to="/internships">Apply to internships</Link>
+                                </p>
+                            </div>
                         ) : (
-                            applications.map((app, index) => (
-                                <div key={index} className="status-card">
-                                    <div className="status-header">
+                            userApplications.map((app, index) => (
+                                <div key={app.id || index} className="status-card">
+                                    <div className="status-card-header">
                                         <h3>{app.internshipTitle}</h3>
-                                        <span className={`status-badge status-${app.status.toLowerCase()}`}>{app.status}</span>
+                                        <span className={`status-badge ${getStatusClass(app.status)}`}>{app.status}</span>
                                     </div>
                                     <div className="status-details">
                                         <p><strong>Company:</strong> {app.company}</p>
                                         <p><strong>Applied on:</strong> {new Date(app.appliedAt).toLocaleDateString()}</p>
+                                        <p><strong>Evaluation:</strong> 
+                                            <span className={`status-badge ${getEvaluationClass(app.evaluation)}`} style={{ marginLeft: '0.5rem' }}>
+                                                {app.evaluation}
+                                            </span>
+                                        </p>
+                                        {app.adminFeedback && (
+                                            <p><strong>Feedback:</strong> {app.adminFeedback}</p>
+                                        )}
                                     </div>
                                 </div>
                             ))

@@ -8,7 +8,17 @@ import { useAppContext } from '../context/AppContext';
  * Optionally checks for admin access
  */
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
-  const { loggedInUser } = useAppContext();
+  const { loggedInUser, isLoading } = useAppContext();
+
+  // Show loading spinner while checking auth
+  if (isLoading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   // If no user is logged in, redirect to login
   if (!loggedInUser) {
