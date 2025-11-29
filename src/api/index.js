@@ -1,16 +1,22 @@
 const API_URL = 'http://localhost:5000/api';
+const API_TIMEOUT = 5000; // 5 second timeout
 
-// Helper function for API calls
+// Helper function for API calls with timeout
 const apiCall = async (endpoint, options = {}) => {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+
     const response = await fetch(`${API_URL}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      signal: controller.signal,
       ...options,
     });
 
+    clearTimeout(timeoutId);
     const data = await response.json();
 
     if (!response.ok) {
@@ -19,6 +25,10 @@ const apiCall = async (endpoint, options = {}) => {
 
     return data;
   } catch (error) {
+    if (error.name === 'AbortError') {
+      console.warn('API call timeout - switching to offline mode');
+      throw new Error('Connection timeout - using offline mode');
+    }
     console.error('API Error:', error);
     throw error;
   }

@@ -73,19 +73,35 @@ function Login() {
         const { loginIdentifier, loginPassword } = formData;
         
         if (!loginIdentifier || !loginPassword) {
-            setMessage({ text: 'Please enter both username/email and password', type: 'error' });
+            setMessage({ text: '❌ Please enter both username/email and password', type: 'error' });
             return;
         }
         
-        // Try to login via API
+        // First try API login
         const result = await login(loginIdentifier, loginPassword);
         
         if (result.success) {
-            const isAdmin = result.user.role === 'admin';
-            setMessage({ text: `${isAdmin ? 'Admin' : 'User'} login successful! Redirecting...`, type: 'success' });
+            const isAdmin = result.user.role === 'admin' || result.user.isAdmin;
+            setMessage({ text: `✅ ${isAdmin ? 'Admin' : 'User'} login successful! Redirecting...`, type: 'success' });
             setTimeout(() => navigate(isAdmin ? '/admin' : '/dashboard'), 1000);
         } else {
-            setMessage({ text: result.error || 'Invalid username or password', type: 'error' });
+            // Fallback: Try to login with registered users in localStorage
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const foundUser = registeredUsers.find(u => 
+                (u.username.toLowerCase() === loginIdentifier.toLowerCase() || 
+                 u.email.toLowerCase() === loginIdentifier.toLowerCase()) &&
+                u.password === loginPassword
+            );
+
+            if (foundUser) {
+                const { password: _, ...userWithoutPassword } = foundUser;
+                // Manually set logged in user using context
+                localStorage.setItem('loggedInUser', JSON.stringify(userWithoutPassword));
+                setMessage({ text: '✅ Offline login successful! Redirecting...', type: 'success' });
+                setTimeout(() => navigate('/dashboard'), 1000);
+            } else {
+                setMessage({ text: '❌ Invalid username or password', type: 'error' });
+            }
         }
     };
 

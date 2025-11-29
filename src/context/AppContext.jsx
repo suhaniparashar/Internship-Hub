@@ -38,24 +38,47 @@ export const AppContextProvider = ({ children }) => {
     }
   }, [darkMode]);
 
-  // Fetch all data from API
+  // Fetch all data from API with localStorage fallback
   const fetchAllData = async () => {
     setIsLoading(true);
     try {
       // Fetch internships, users, and applications in parallel
       const [internshipsData, usersData, applicationsData] = await Promise.all([
-        api.internships.getAll().catch(() => []),
-        api.users.getAll().catch(() => []),
-        loggedInUser ? api.applications.getAll(loggedInUser.id).catch(() => []) : Promise.resolve([])
+        api.internships.getAll().catch(() => null),
+        api.users.getAll().catch(() => null),
+        loggedInUser ? api.applications.getAll(loggedInUser.id).catch(() => null) : Promise.resolve(null)
       ]);
 
-      setInternships(internshipsData.length > 0 ? internshipsData : getFallbackInternships());
-      setUsers(usersData);
-      setApplications(applicationsData);
+      // Use API data if available, otherwise use localStorage
+      if (internshipsData && internshipsData.length > 0) {
+        setInternships(internshipsData);
+        localStorage.setItem('internships', JSON.stringify(internshipsData));
+      } else {
+        const storedInternships = JSON.parse(localStorage.getItem('internships') || 'null');
+        setInternships(storedInternships || getFallbackInternships());
+      }
+
+      if (usersData && usersData.length > 0) {
+        setUsers(usersData);
+        localStorage.setItem('users', JSON.stringify(usersData));
+      } else {
+        const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        setUsers(storedUsers);
+      }
+
+      if (applicationsData && applicationsData.length > 0) {
+        setApplications(applicationsData);
+        localStorage.setItem('applications', JSON.stringify(applicationsData));
+      } else {
+        const storedApps = JSON.parse(localStorage.getItem('applications') || '[]');
+        setApplications(storedApps);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       // Use fallback data if API fails
       setInternships(getFallbackInternships());
+      const storedApps = JSON.parse(localStorage.getItem('applications') || '[]');
+      setApplications(storedApps);
     } finally {
       setIsLoading(false);
     }

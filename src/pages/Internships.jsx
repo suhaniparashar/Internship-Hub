@@ -48,17 +48,35 @@ function Internships() {
             {/* Internships Section */}
             <section className="internships-section">
                 <div className="container">
-                    <div className="filter-bar">
-                        <p className="internship-count">
-                            {isLoading ? 'Loading internships...' : `Showing ${filteredInternships.length} internships`}
-                        </p>
+                    <div className="internships-header">
+                        <div className="filter-bar">
+                            <p className="internship-count">
+                                {isLoading ? '⏳ Loading internships...' : `✨ Showing ${filteredInternships.length} internship${filteredInternships.length !== 1 ? 's' : ''}`}
+                            </p>
+                        </div>
+                        <div className="sort-options">
+                            <span className="sort-label">📊 Sort by: </span>
+                            <select className="sort-select">
+                                <option>Most Recent</option>
+                                <option>Most Applied</option>
+                                <option>Highest Stipend</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div className="internships-grid" id="internshipsGrid">
                         {isLoading ? (
-                            <p>Loading...</p>
+                            <div className="loading-state">
+                                <div className="spinner"></div>
+                                <p>Fetching amazing opportunities for you...</p>
+                            </div>
                         ) : filteredInternships.length === 0 ? (
-                            <p>No internships available at the moment.</p>
+                            <div className="empty-state">
+                                <div className="empty-icon">🔍</div>
+                                <h3>No internships found</h3>
+                                <p>Try adjusting your filters or check back soon for more opportunities</p>
+                                <button className="btn btn-primary" onClick={() => setFilterType('all')}>View All Internships</button>
+                            </div>
                         ) : (
                             filteredInternships.map(internship => (
                                 <div key={internship.id} className="internship-card">

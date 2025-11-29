@@ -94,25 +94,35 @@ function Home() {
             <section className="how-it-works-section">
                 <div className="container">
                     <h2 className="section-title">How It Works</h2>
-                    <p className="section-subtitle">Three simple steps to your dream internship</p>
+                    <p className="section-subtitle">Get your dream internship in 4 simple steps</p>
                     
                     <div className="steps-grid">
                         <div className="step-card">
                             <div className="step-number">01</div>
-                            <h3>Create Your Profile</h3>
-                            <p>Sign up and build your professional profile showcasing your skills and experiences.</p>
+                            <h3>Sign Up Free</h3>
+                            <p>Create your account in 2 minutes with your email and basic information. No credit card required.</p>
+                            <div className="step-icon">🔐</div>
                         </div>
                         <div className="step-connector"></div>
                         <div className="step-card">
                             <div className="step-number">02</div>
-                            <h3>Explore & Apply</h3>
-                            <p>Browse curated internships matching your interests and apply with one click.</p>
+                            <h3>Complete Profile</h3>
+                            <p>Add your skills, experiences, and preferences to get personalized internship recommendations.</p>
+                            <div className="step-icon">📝</div>
                         </div>
                         <div className="step-connector"></div>
                         <div className="step-card">
                             <div className="step-number">03</div>
-                            <h3>Get Hired</h3>
-                            <p>Track your applications and land your dream internship at top companies.</p>
+                            <h3>Explore & Apply</h3>
+                            <p>Browse filtered internships and apply with one click. Track all your applications in real-time.</p>
+                            <div className="step-icon">🔍</div>
+                        </div>
+                        <div className="step-connector"></div>
+                        <div className="step-card">
+                            <div className="step-number">04</div>
+                            <h3>Get Selected</h3>
+                            <p>Receive interview invitations and get selected at your dream company. Start your career journey!</p>
+                            <div className="step-icon">🎉</div>
                         </div>
                     </div>
                 </div>
