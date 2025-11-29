@@ -7,27 +7,6 @@
     "VITE_API_URL": "@vite_api_url",
     "VITE_DB_URL": "@vite_db_url"
   },
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "http://localhost:5000/api/$1",
-      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization"
-      }
-    },
-    {
-      "src": "/data/(.*)",
-      "dest": "/data.html"
-    },
-    {
-      "src": "/(?!api|data)(.*)",
-      "dest": "/index.html",
-      "status": 200
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
