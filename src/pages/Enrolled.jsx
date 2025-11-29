@@ -4,6 +4,7 @@ import { useAppContext } from '../context/AppContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { showMessage, showConfirmModal } from '../utils/notifications';
+import { formatDate } from '../utils/formatDate';
 
 function Enrolled() {
     const navigate = useNavigate();
@@ -135,7 +136,7 @@ function Enrolled() {
                                         <div className="enrollment-info">
                                             <h3>{enrollment.internshipTitle}</h3>
                                             <p className="company-name">{enrollment.company}</p>
-                                            <p className="applied-date">Applied: {new Date(enrollment.appliedAt).toLocaleDateString()}</p>
+                                            <p className="applied-date">Applied: {formatDate(enrollment.appliedAt)}</p>
                                         </div>
                                         <div className="enrollment-actions">
                                             <button 
@@ -207,7 +208,7 @@ function Enrolled() {
                                                                     )}
                                                                     {task.completedAt && (
                                                                         <span className="task-completed-date">
-                                                                            Completed: {new Date(task.completedAt).toLocaleDateString()}
+                                                                            Completed: {formatDate(task.completedAt)}
                                                                         </span>
                                                                     )}
                                                                 </div>
