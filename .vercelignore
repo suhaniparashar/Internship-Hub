@@ -1,0 +1,9 @@
+# Ignore documentation files
+*.md
+screenshots/
+server/
+.git
+.gitignore
+node_modules/
+
+# Keep only what Vercel needs
