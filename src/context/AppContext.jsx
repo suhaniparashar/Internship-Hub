@@ -1,11 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
-import api from '../api/index.js';
+import { userAPI, internshipAPI, applicationAPI, taskAPI, submissionAPI } from '../api/index.js';
 
-// Create Context
 const AppContext = createContext();
 
-// Custom hook to use the AppContext
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) {
@@ -14,9 +12,7 @@ export const useAppContext = () => {
   return context;
 };
 
-// Context Provider Component
 export const AppContextProvider = ({ children }) => {
-  // State management - all local storage based
   const [loggedInUser, setLoggedInUser] = useLocalStorage('loggedInUser', null);
   const [users, setUsers] = useState([]);
   const [internships, setInternships] = useState([]);
@@ -26,12 +22,10 @@ export const AppContextProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useLocalStorage('darkMode', false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch all data on mount
   useEffect(() => {
     fetchAllData();
   }, []);
 
-  // Apply dark mode class to body
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add('dark-mode');
@@ -40,23 +34,25 @@ export const AppContextProvider = ({ children }) => {
     }
   }, [darkMode]);
 
-  // Fetch all data from localStorage
   const fetchAllData = async () => {
     setIsLoading(true);
     try {
-      const [internshipsData, usersData, applicationsData, tasksData, submissionsData] = await Promise.all([
-        api.internships.getAll(),
-        api.users.getAll(),
-        loggedInUser ? api.applications.getAll(loggedInUser.id) : Promise.resolve([]),
-        api.tasks.getAll(),
-        api.submissions.getAll()
+      const [internshipsData, usersData, tasksData, submissionsData] = await Promise.all([
+        internshipAPI.getAll(),
+        userAPI.getAllUsers(),
+        taskAPI.getAll(),
+        submissionAPI.getAll()
       ]);
 
       setInternships(internshipsData || []);
       setUsers(usersData || []);
-      setApplications(applicationsData || []);
       setTasks(tasksData || []);
       setSubmissions(submissionsData || []);
+
+      if (loggedInUser) {
+        const userApps = await applicationAPI.getByUserId(loggedInUser.id);
+        setApplications(userApps || []);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -64,15 +60,13 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Login function - local storage only
   const login = async (username, password) => {
     try {
-      const userData = await api.users.login({ username, password });
+      const userData = await userAPI.login(username, password);
       setLoggedInUser(userData);
       
-      // Fetch user's applications after login
-      const userApps = await api.applications.getAll(userData.id);
-      setApplications(userApps);
+      const userApps = await applicationAPI.getByUserId(userData.id);
+      setApplications(userApps || []);
       
       return { success: true, user: userData };
     } catch (error) {
@@ -80,23 +74,20 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Logout function
   const logout = () => {
     setLoggedInUser(null);
     setApplications([]);
   };
 
-  // Register new user
   const register = async (newUser) => {
     try {
-      const userData = await api.users.register(newUser);
+      const userData = await userAPI.register(newUser);
       return { success: true, user: userData };
     } catch (error) {
       return { success: false, error: error.message };
     }
   };
 
-  // Apply for internship
   const applyForInternship = async (internshipId) => {
     if (!loggedInUser) return false;
     
@@ -106,7 +97,7 @@ export const AppContextProvider = ({ children }) => {
         internshipId: internshipId
       };
       
-      const newApplication = await api.applications.create(applicationData);
+      const newApplication = await applicationAPI.create(applicationData);
       setApplications([...applications, newApplication]);
       return true;
     } catch (error) {
@@ -115,13 +106,11 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Get user applications
   const getUserApplications = () => {
     if (!loggedInUser) return [];
     return applications.filter(app => app.userId === loggedInUser.id);
   };
 
-  // Check if user has applied for an internship
   const hasApplied = (internshipId) => {
     if (!loggedInUser) return false;
     return applications.some(
@@ -129,15 +118,13 @@ export const AppContextProvider = ({ children }) => {
     );
   };
 
-  // Toggle dark mode
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
-  // Update application status
   const updateApplicationStatus = async (applicationId, newStatus) => {
     try {
-      const updatedApp = await api.applications.update(applicationId, { status: newStatus });
+      const updatedApp = await applicationAPI.updateStatus(applicationId, newStatus);
       const updatedApplications = applications.map(app =>
         app.id === applicationId ? updatedApp : app
       );
@@ -149,23 +136,9 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Delete application
-  const deleteApplication = async (applicationId) => {
-    try {
-      await api.applications.delete(applicationId);
-      const updatedApplications = applications.filter(app => app.id !== applicationId);
-      setApplications(updatedApplications);
-      return true;
-    } catch (error) {
-      console.error('Delete application error:', error);
-      return false;
-    }
-  };
-
-  // Create task
   const addTaskToApplication = async (applicationId, taskData) => {
     try {
-      const newTask = await api.tasks.create({
+      const newTask = await taskAPI.create({
         applicationId: applicationId,
         userId: loggedInUser.id,
         ...taskData,
@@ -179,10 +152,9 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Update task status
   const updateTaskStatus = async (taskId, completed) => {
     try {
-      const updatedTask = await api.tasks.update(taskId, { completed });
+      const updatedTask = await taskAPI.update(taskId, { completed });
       const updatedTasks = tasks.map(t => t.id === taskId ? updatedTask : t);
       setTasks(updatedTasks);
       return true;
@@ -192,10 +164,9 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Add task feedback
   const addTaskFeedback = async (taskId, feedback) => {
     try {
-      const updatedTask = await api.tasks.update(taskId, { adminFeedback: feedback });
+      const updatedTask = await taskAPI.update(taskId, { adminFeedback: feedback });
       const updatedTasks = tasks.map(t => t.id === taskId ? updatedTask : t);
       setTasks(updatedTasks);
       return true;
@@ -205,10 +176,9 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Add admin feedback to application
   const addAdminFeedback = async (applicationId, feedback) => {
     try {
-      const updatedApp = await api.applications.update(applicationId, { adminFeedback: feedback });
+      const updatedApp = await applicationAPI.addFeedback(applicationId, feedback);
       const updatedApplications = applications.map(app =>
         app.id === applicationId ? updatedApp : app
       );
@@ -220,10 +190,9 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Delete task
   const deleteTask = async (taskId) => {
     try {
-      await api.tasks.delete(taskId);
+      await taskAPI.delete(taskId);
       const updatedTasks = tasks.filter(t => t.id !== taskId);
       setTasks(updatedTasks);
       return true;
@@ -233,10 +202,9 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Create submission
   const createSubmission = async (submissionData) => {
     try {
-      const newSubmission = await api.submissions.create(submissionData);
+      const newSubmission = await submissionAPI.create(submissionData);
       setSubmissions([...submissions, newSubmission]);
       return true;
     } catch (error) {
@@ -245,22 +213,65 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Update submission
-  const updateSubmission = async (submissionId, updates) => {
+  // Admin functions
+  const createInternship = async (internshipData) => {
     try {
-      const updatedSubmission = await api.submissions.update(submissionId, updates);
-      const updatedSubmissions = submissions.map(s => s.id === submissionId ? updatedSubmission : s);
-      setSubmissions(updatedSubmissions);
-      return true;
+      const newInternship = await internshipAPI.create(internshipData);
+      setInternships([...internships, newInternship]);
+      return { success: true, internship: newInternship };
     } catch (error) {
-      console.error('Update submission error:', error);
-      return false;
+      return { success: false, error: error.message };
     }
   };
 
-  // Context value
+  const updateInternship = async (internshipId, updates) => {
+    try {
+      const updated = await internshipAPI.update(internshipId, updates);
+      const updatedList = internships.map(i => i.id === internshipId ? updated : i);
+      setInternships(updatedList);
+      return { success: true, internship: updated };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const deleteInternship = async (internshipId) => {
+    try {
+      await internshipAPI.delete(internshipId);
+      const updatedList = internships.filter(i => i.id !== internshipId);
+      setInternships(updatedList);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const updateUser = async (userId, updates) => {
+    try {
+      const updated = await userAPI.updateUser(userId, updates);
+      const updatedList = users.map(u => u.id === userId ? updated : u);
+      setUsers(updatedList);
+      if (loggedInUser.id === userId) {
+        setLoggedInUser(updated);
+      }
+      return { success: true, user: updated };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  const deleteUser = async (userId) => {
+    try {
+      await userAPI.deleteUser(userId);
+      const updatedList = users.filter(u => u.id !== userId);
+      setUsers(updatedList);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
   const value = {
-    // State
     loggedInUser,
     users,
     internships,
@@ -269,8 +280,6 @@ export const AppContextProvider = ({ children }) => {
     submissions,
     darkMode,
     isLoading,
-    
-    // Functions
     login,
     logout,
     register,
@@ -279,15 +288,18 @@ export const AppContextProvider = ({ children }) => {
     hasApplied,
     toggleDarkMode,
     updateApplicationStatus,
-    deleteApplication,
     addTaskToApplication,
     updateTaskStatus,
     addTaskFeedback,
     addAdminFeedback,
     deleteTask,
     createSubmission,
-    updateSubmission,
-    fetchAllData // Export for manual refresh
+    fetchAllData,
+    createInternship,
+    updateInternship,
+    deleteInternship,
+    updateUser,
+    deleteUser
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
