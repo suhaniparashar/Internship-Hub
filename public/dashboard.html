@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternHub - Data Dashboard | 600+ Users Sample Data</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gray-900: #111827;
+            --gray-100: #f3f4f6;
+            --border: #e2e8f0;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gray-100);
+            color: var(--text-dark);
+        }
+
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .navbar-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: var(--gray-100);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: var(--gray-100);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+
+        .badge-pending {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--gray-100);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            padding: 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .chart-item {
+            background: var(--gray-100);
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+
+        .chart-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .chart-list {
+            list-style: none;
+        }
+
+        .chart-list li {
+            padding: 0.75rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chart-list li:last-child {
+            border-bottom: none;
+        }
+
+        .chart-count {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .footer {
+            background: var(--gray-900);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .alert-info {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            header h2 {
+                font-size: 1.5rem;
+            }
+
+            .navbar-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <h1>📊 InternHub - Data Dashboard</h1>
+            <div class="navbar-actions">
+                <button class="btn btn-primary" onclick="generateData()">⚡ Generate Data</button>
+                <button class="btn btn-secondary" onclick="exportData()">📥 Export JSON</button>
+                <button class="btn btn-danger" onclick="clearData()">🗑️ Clear Data</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h2>Comprehensive Sample Data Dashboard</h2>
+            <p>600+ Users | 25 Internships | 4000+ Applications | 2000+ Tasks</p>
+        </header>
+
+        <!-- Loading Alert -->
+        <div id="loadingAlert" class="alert alert-info" style="display: none;">
+            <div class="spinner"></div>
+            <span>Generating sample data... This may take a moment.</span>
+        </div>
+
+        <!-- Statistics Section -->
+        <section class="section">
+            <h2 class="section-title">Overview Statistics</h2>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value" id="totalUsers">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Internships</div>
+                    <div class="stat-value" id="totalInternships">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Applications</div>
+                    <div class="stat-value" id="totalApplications">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Tasks</div>
+                    <div class="stat-value" id="totalTasks">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Applications/User</div>
+                    <div class="stat-value" id="avgApplications">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Acceptance Rate</div>
+                    <div class="stat-value" id="acceptanceRate">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pending Applications</div>
+                    <div class="stat-value" id="pendingApps">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Interviews Scheduled</div>
+                    <div class="stat-value" id="interviewApps">0</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Section -->
+        <section class="section">
+            <h2 class="section-title">Data Preview</h2>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab(event, 'users')">Users (600+)</button>
+                <button class="tab" onclick="switchTab(event, 'internships')">Internships (25)</button>
+                <button class="tab" onclick="switchTab(event, 'applications')">Applications (4000+)</button>
+                <button class="tab" onclick="switchTab(event, 'analytics')">Analytics</button>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users" class="tab-content active">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>College</th>
+                                <th>Branch</th>
+                                <th>GPA</th>
+                                <th>Registration Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable"></tbody>
+                    </table>
+                </div>
+                <div style="text-align: center; padding: 1rem; color: var(--text-light);">
+                    Showing first 50 users. Generate data to see more.
+                </div>
+            </div>
+
+            <!-- Internships Tab -->
+            <div id="internships" class="tab-content">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Role</th>
+                                <th>Location</th>
+                                <th>Stipend</th>
+                                <th>Duration</th>
+                                <th>Type</th>
+                                <th>Applicants</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody id="internshipsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Applications Tab -->
+            <div id="applications" class="tab-content">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Application ID</th>
+                                <th>User</th>
+                                <th>Company</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Applied Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicationsTable"></tbody>
+                    </table>
+                </div>
+                <div style="text-align: center; padding: 1rem; color: var(--text-light);">
+                    Showing first 50 applications. Generate data to see more.
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics" class="tab-content">
+                <div class="chart-container">
+                    <div class="chart-item">
+                        <div class="chart-title">📊 Top Companies by Applications</div>
+                        <ul class="chart-list" id="topCompanies"></ul>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-title">💼 Top Roles</div>
+                        <ul class="chart-list" id="topRoles"></ul>
+                    </div>
+                    <div class="chart-item">
+                        <div class="chart-title">📈 Application Status Distribution</div>
+                        <ul class="chart-list" id="statusDistribution"></ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 InternHub - Production Ready Internship Platform</p>
+        <p style="opacity: 0.8; margin-top: 0.5rem;">Sample Data Generator v1.0</p>
+    </footer>
+
+    <!-- Script -->
+    <script src="data-generator.js"></script>
+    <script>
+        let generatedData = null;
+
+        function generateData() {
+            document.getElementById('loadingAlert').style.display = 'flex';
+            
+            setTimeout(() => {
+                const generator = new InternHubDataGenerator();
+                generatedData = generator.generateAll();
+                
+                updateDashboard();
+                displayData();
+                
+                document.getElementById('loadingAlert').style.display = 'none';
+                showNotification('✅ Data generated successfully!', 'success');
+            }, 100);
+        }
+
+        function updateDashboard() {
+            const stats = {
+                totalUsers: generatedData.users.length,
+                totalInternships: generatedData.internships.length,
+                totalApplications: generatedData.applications.length,
+                totalTasks: generatedData.tasks.length,
+                avgApplications: (generatedData.applications.length / generatedData.users.length).toFixed(2),
+                acceptanceRate: ((generatedData.applications.filter(a => a.status === 'accepted').length / generatedData.applications.length) * 100).toFixed(2),
+                pendingApps: generatedData.applications.filter(a => a.status === 'pending').length,
+                interviewApps: generatedData.applications.filter(a => a.status === 'interview').length
+            };
+
+            document.getElementById('totalUsers').textContent = stats.totalUsers;
+            document.getElementById('totalInternships').textContent = stats.totalInternships;
+            document.getElementById('totalApplications').textContent = stats.totalApplications;
+            document.getElementById('totalTasks').textContent = stats.totalTasks;
+            document.getElementById('avgApplications').textContent = stats.avgApplications;
+            document.getElementById('acceptanceRate').textContent = stats.acceptanceRate + '%';
+            document.getElementById('pendingApps').textContent = stats.pendingApps;
+            document.getElementById('interviewApps').textContent = stats.interviewApps;
+        }
+
+        function displayData() {
+            displayUsers();
+            displayInternships();
+            displayApplications();
+            displayAnalytics();
+        }
+
+        function displayUsers() {
+            const tbody = document.getElementById('usersTable');
+            tbody.innerHTML = generatedData.users.slice(0, 50).map(user => `
+                <tr>
+                    <td><strong>${user.id}</strong></td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.college}</td>
+                    <td>${user.branch}</td>
+                    <td>${user.gpa}</td>
+                    <td>${user.registrationDate}</td>
+                    <td><span class="badge ${user.status === 'active' ? 'badge-success' : 'badge-danger'}">${user.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function displayInternships() {
+            const tbody = document.getElementById('internshipsTable');
+            tbody.innerHTML = generatedData.internships.map(internship => `
+                <tr>
+                    <td><strong>${internship.company}</strong></td>
+                    <td>${internship.role}</td>
+                    <td>${internship.location}</td>
+                    <td>₹${(internship.stipend / 1000).toFixed(0)}K</td>
+                    <td>${internship.duration} months</td>
+                    <td><span class="badge badge-success">${internship.type}</span></td>
+                    <td>${internship.applicantsCount}</td>
+                    <td>⭐ ${internship.rating}</td>
+                </tr>
+            `).join('');
+        }
+
+        function displayApplications() {
+            const tbody = document.getElementById('applicationsTable');
+            tbody.innerHTML = generatedData.applications.slice(0, 50).map(app => `
+                <tr>
+                    <td><strong>${app.id}</strong></td>
+                    <td>${app.userName}</td>
+                    <td>${app.company}</td>
+                    <td>${app.role}</td>
+                    <td><span class="badge ${getStatusBadgeClass(app.status)}">${app.status}</span></td>
+                    <td>${app.appliedDate}</td>
+                </tr>
+            `).join('');
+        }
+
+        function displayAnalytics() {
+            const companies = {};
+            const roles = {};
+            const statuses = {};
+
+            generatedData.applications.forEach(app => {
+                companies[app.company] = (companies[app.company] || 0) + 1;
+                roles[app.role] = (roles[app.role] || 0) + 1;
+                statuses[app.status] = (statuses[app.status] || 0) + 1;
+            });
+
+            // Top Companies
+            const topCompanies = Object.entries(companies)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            document.getElementById('topCompanies').innerHTML = topCompanies
+                .map(([company, count]) => `<li>${company}<span class="chart-count">${count}</span></li>`)
+                .join('');
+
+            // Top Roles
+            const topRoles = Object.entries(roles)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            document.getElementById('topRoles').innerHTML = topRoles
+                .map(([role, count]) => `<li>${role}<span class="chart-count">${count}</span></li>`)
+                .join('');
+
+            // Status Distribution
+            const statusList = Object.entries(statuses)
+                .sort((a, b) => b[1] - a[1]);
+            document.getElementById('statusDistribution').innerHTML = statusList
+                .map(([status, count]) => `<li>${status.charAt(0).toUpperCase() + status.slice(1)}<span class="chart-count">${count}</span></li>`)
+                .join('');
+        }
+
+        function getStatusBadgeClass(status) {
+            if (status === 'accepted') return 'badge-success';
+            if (status === 'rejected') return 'badge-danger';
+            return 'badge-pending';
+        }
+
+        function switchTab(event, tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function exportData() {
+            if (!generatedData) {
+                showNotification('⚠️ Please generate data first!', 'warning');
+                return;
+            }
+
+            const dataStr = JSON.stringify(generatedData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `internhub-sample-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showNotification('✅ Data exported successfully!', 'success');
+        }
+
+        function clearData() {
+            generatedData = null;
+            document.getElementById('usersTable').innerHTML = '';
+            document.getElementById('internshipsTable').innerHTML = '';
+            document.getElementById('applicationsTable').innerHTML = '';
+            document.getElementById('topCompanies').innerHTML = '';
+            document.getElementById('topRoles').innerHTML = '';
+            document.getElementById('statusDistribution').innerHTML = '';
+
+            // Reset stats
+            document.querySelectorAll('.stat-value').forEach(el => el.textContent = '0');
+            document.getElementById('acceptanceRate').textContent = '0%';
+
+            showNotification('🗑️ Data cleared successfully!', 'success');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type}`;
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.top = '80px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '3000';
+            notification.style.minWidth = '300px';
+            notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Initialize dashboard
+        window.addEventListener('load', () => {
+            // Auto-generate on load (optional)
+            // generateData();
+        });
+    </script>
+</body>
+</html>

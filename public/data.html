@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InternHub - Data Management Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <title>InternHub - Sample Data Dashboard | Client Showcase</title>
     <style>
         * {
             margin: 0;
@@ -12,31 +11,87 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --danger-dark: #dc2626;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --border: #e2e8f0;
+            --white: #ffffff;
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #f0f4ff 0%, #e8f4f8 100%);
-            padding: 20px;
-            min-height: 100vh;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1280px;
             margin: 0 auto;
+            padding: 2rem;
         }
 
         header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-            color: white;
-            padding: 2rem;
-            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 3rem 0;
+            text-align: center;
             margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.2);
+            border-radius: 12px;
         }
 
-        header h1 {
+        header h2 {
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
+            font-weight: 800;
         }
 
         header p {
@@ -44,11 +99,822 @@
             opacity: 0.9;
         }
 
+        .section {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 2px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: var(--gray-50);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+
+        .badge-secondary {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--secondary);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-info {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: var(--primary);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--secondary);
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        .alert-icon {
+            font-size: 1.25rem;
+        }
+
         .tabs {
             display: flex;
             gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .internship-card {
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .internship-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .internship-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .internship-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .internship-company {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .internship-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .meta-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-value {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .footer {
+            background: var(--gray-900);
+            color: var(--white);
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .footer p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            header h2 {
+                font-size: 1.75rem;
+            }
+
+            .navbar-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .table-wrapper {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <h1>📊 InternHub - Sample Data Dashboard</h1>
+            <div class="navbar-actions">
+                <button class="btn btn-danger" onclick="openDeleteModal()">🗑️ Delete All Data</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h2>Welcome to InternHub</h2>
+            <p>Production-Ready Internship Platform - Client Showcase</p>
+        </header>
+
+        <!-- Alert -->
+        <div class="alert alert-info">
+            <span class="alert-icon">ℹ️</span>
+            <div>
+                <strong>Demo Data Loaded:</strong> This dashboard displays sample data for client presentation. Click "Delete All Data" button to reset everything.
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <section class="section">
+            <h2 class="section-title">Platform Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Companies</h3>
+                    <div class="stat-value" id="totalCompanies">25</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Internships</h3>
+                    <div class="stat-value" id="activeInternships">25</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Registered Users</h3>
+                    <div class="stat-value" id="registeredUsers">450+</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Monthly Stipend Range</h3>
+                    <div class="stat-value" id="stipendRange">₹14-30K</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Internships Section -->
+        <section class="section">
+            <h2 class="section-title">Featured Internship Opportunities</h2>
+            <div id="internshipsList"></div>
+        </section>
+
+        <!-- Data Management Section -->
+        <section class="section">
+            <h2 class="section-title">Data Management</h2>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab(event, 'users')">Users</button>
+                <button class="tab" onclick="switchTab(event, 'applications')">Applications</button>
+                <button class="tab" onclick="switchTab(event, 'tasks')">Tasks</button>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users" class="tab-content active">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable">
+                            <tr>
+                                <td>#U001</td>
+                                <td>Aditya Kumar</td>
+                                <td>aditya@example.com</td>
+                                <td><span class="badge badge-primary">Student</span></td>
+                                <td><span class="badge badge-success">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>#U002</td>
+                                <td>Priya Singh</td>
+                                <td>priya@example.com</td>
+                                <td><span class="badge badge-primary">Student</span></td>
+                                <td><span class="badge badge-success">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>#U003</td>
+                                <td>Admin User</td>
+                                <td>admin@example.com</td>
+                                <td><span class="badge badge-warning">Admin</span></td>
+                                <td><span class="badge badge-success">Active</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Applications Tab -->
+            <div id="applications" class="tab-content">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Application ID</th>
+                                <th>Candidate</th>
+                                <th>Position</th>
+                                <th>Company</th>
+                                <th>Status</th>
+                                <th>Applied Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicationsTable">
+                            <tr>
+                                <td>#A001</td>
+                                <td>Aditya Kumar</td>
+                                <td>Frontend Developer</td>
+                                <td>Google</td>
+                                <td><span class="badge badge-success">Accepted</span></td>
+                                <td>Nov 25, 2025</td>
+                            </tr>
+                            <tr>
+                                <td>#A002</td>
+                                <td>Priya Singh</td>
+                                <td>Data Scientist</td>
+                                <td>Microsoft</td>
+                                <td><span class="badge badge-primary">Pending</span></td>
+                                <td>Nov 26, 2025</td>
+                            </tr>
+                            <tr>
+                                <td>#A003</td>
+                                <td>Aditya Kumar</td>
+                                <td>Backend Engineer</td>
+                                <td>Amazon</td>
+                                <td><span class="badge badge-warning">Interview</span></td>
+                                <td>Nov 27, 2025</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div id="tasks" class="tab-content">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Task ID</th>
+                                <th>Title</th>
+                                <th>Assigned To</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTable">
+                            <tr>
+                                <td>#T001</td>
+                                <td>Complete profile setup</td>
+                                <td>Aditya Kumar</td>
+                                <td><span class="badge badge-danger">High</span></td>
+                                <td><span class="badge badge-success">Completed</span></td>
+                                <td>Nov 30, 2025</td>
+                            </tr>
+                            <tr>
+                                <td>#T002</td>
+                                <td>Update resume</td>
+                                <td>Priya Singh</td>
+                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td><span class="badge badge-primary">In Progress</span></td>
+                                <td>Dec 5, 2025</td>
+                            </tr>
+                            <tr>
+                                <td>#T003</td>
+                                <td>Interview preparation</td>
+                                <td>Aditya Kumar</td>
+                                <td><span class="badge badge-warning">Medium</span></td>
+                                <td><span class="badge badge-primary">In Progress</span></td>
+                                <td>Dec 10, 2025</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="section">
+            <h2 class="section-title">Quick Actions</h2>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="loadDemoData()">↻ Reload Demo Data</button>
+                <button class="btn btn-primary" onclick="exportData()">📥 Export Data</button>
+                <button class="btn btn-danger" onclick="openDeleteModal()">🗑️ Delete All</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Delete All Data</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Warning:</strong> This action will permanently delete all sample data from the demonstration. This cannot be undone.</p>
+                <p style="margin-top: 1rem;"><strong>Are you sure you want to proceed?</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeDeleteModal()" style="background: var(--gray-300); color: var(--text-dark);">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 InternHub - Professional Internship Platform. All rights reserved.</p>
+        <p style="margin-top: 0.5rem;">Version 0.2.1 | Production Ready</p>
+    </footer>
+
+    <script>
+        // Sample internship data
+        const sampleInternships = [
+            {
+                id: 1,
+                title: 'Frontend Developer',
+                company: 'Google',
+                location: 'Remote',
+                type: 'Full-time',
+                stipend: '₹25,000/month',
+                applicants: '2,500+',
+                rating: '4.8'
+            },
+            {
+                id: 2,
+                title: 'Data Scientist',
+                company: 'Microsoft',
+                location: 'Hyderabad',
+                type: 'Full-time',
+                stipend: '₹28,000/month',
+                applicants: '1,800+',
+                rating: '4.7'
+            },
+            {
+                id: 3,
+                title: 'Backend Engineer',
+                company: 'Amazon',
+                location: 'Bangalore',
+                type: 'Full-time',
+                stipend: '₹30,000/month',
+                applicants: '3,200+',
+                rating: '4.9'
+            },
+            {
+                id: 4,
+                title: 'UI/UX Designer',
+                company: 'Meta',
+                location: 'Remote',
+                type: 'Part-time',
+                stipend: '₹18,000/month',
+                applicants: '950+',
+                rating: '4.6'
+            },
+            {
+                id: 5,
+                title: 'Machine Learning Engineer',
+                company: 'Apple',
+                location: 'Bangalore',
+                type: 'Full-time',
+                stipend: '₹26,000/month',
+                applicants: '1,200+',
+                rating: '4.8'
+            }
+        ];
+
+        // Initialize dashboard
+        function initDashboard() {
+            loadDemoData();
+        }
+
+        // Load demo data
+        function loadDemoData() {
+            const internshipsList = document.getElementById('internshipsList');
+            internshipsList.innerHTML = sampleInternships.map(internship => `
+                <div class="internship-card">
+                    <div class="internship-header">
+                        <div>
+                            <div class="internship-title">${internship.title}</div>
+                            <div class="internship-company">${internship.company}</div>
+                        </div>
+                        <div>
+                            <span class="badge badge-primary">⭐ ${internship.rating}</span>
+                        </div>
+                    </div>
+                    <div class="internship-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Location</span>
+                            <span class="meta-value">📍 ${internship.location}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Type</span>
+                            <span class="meta-value">💼 ${internship.type}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Stipend</span>
+                            <span class="meta-value">💰 ${internship.stipend}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Applicants</span>
+                            <span class="meta-value">👥 ${internship.applicants}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Show success message
+            showAlert('Demo data loaded successfully!', 'success');
+        }
+
+        // Switch tabs
+        function switchTab(event, tabName) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to clicked tab and corresponding content
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Delete modal functions
+        function openDeleteModal() {
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+
+        function confirmDelete() {
+            // Clear all data
+            document.getElementById('internshipsList').innerHTML = '<p style="color: var(--text-light); text-align: center; padding: 2rem;">All data has been deleted.</p>';
+            document.getElementById('usersTable').innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-light);">No users found</td></tr>';
+            document.getElementById('applicationsTable').innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-light);">No applications found</td></tr>';
+            document.getElementById('tasksTable').innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-light);">No tasks found</td></tr>';
+
+            // Update statistics
+            document.getElementById('totalCompanies').textContent = '0';
+            document.getElementById('activeInternships').textContent = '0';
+            document.getElementById('registeredUsers').textContent = '0';
+
+            closeDeleteModal();
+            showAlert('All data has been successfully deleted!', 'danger');
+        }
+
+        // Export data
+        function exportData() {
+            const data = {
+                internships: sampleInternships,
+                exportDate: new Date().toISOString(),
+                platform: 'InternHub v0.2.1'
+            };
+
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `internhub-data-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showAlert('Data exported successfully!', 'success');
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            // Create temporary alert
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.style.position = 'fixed';
+            alert.style.top = '80px';
+            alert.style.right = '20px';
+            alert.style.zIndex = '3000';
+            alert.style.minWidth = '300px';
+            alert.innerHTML = `<span class="alert-icon">${type === 'success' ? '✓' : type === 'danger' ? '✕' : 'ℹ'}</span><div>${message}</div>`;
+            document.body.appendChild(alert);
+
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        // Close modal on outside click
+        document.getElementById('deleteModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeDeleteModal();
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', initDashboard);
+    </script>
+</body>
+</html>
         }
 
         .tab-button {

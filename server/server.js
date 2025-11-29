@@ -8,6 +8,7 @@ import userRoutes from './routes/users.js';
 import internshipRoutes from './routes/internships.js';
 import applicationRoutes from './routes/applications.js';
 import taskRoutes from './routes/tasks.js';
+import adminRoutes from './routes/admin.js';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/internships', internshipRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -23,9 +23,36 @@ const userSchema = new mongoose.Schema({
     enum: ['student', 'admin'],
     default: 'student'
   },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'kicked'],
+    default: 'active'
+  },
   fullName: {
     type: String,
     required: true
+  },
+  phone: {
+    type: String,
+    default: ''
+  },
+  college: {
+    type: String,
+    default: ''
+  },
+  branch: {
+    type: String,
+    default: ''
+  },
+  profileProgress: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 0
+  },
+  lastActive: {
+    type: Date,
+    default: Date.now
   },
   createdAt: {
     type: Date,
