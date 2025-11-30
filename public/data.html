@@ -11,6 +11,7 @@
             --primary-dark: #1d4ed8;
             --secondary: #10b981;
             --danger: #ef4444;
+            --warning: #f59e0b;
             --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
             --gray-300: #d1d5db;
@@ -23,15 +24,17 @@
         }
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
         .navbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 1.5rem 0; position: sticky; top: 0; z-index: 1000; }
-        .navbar-content { max-width: 1280px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .navbar-content { max-width: 1280px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
         .navbar h1 { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+        .navbar-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
         .container { max-width: 1280px; margin: 0 auto; padding: 2rem; }
         header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 3rem 0; text-align: center; margin-bottom: 2rem; border-radius: 12px; }
         header h2 { font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 800; }
         header p { font-size: 1.1rem; opacity: 0.9; }
         .section { background: var(--white); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-dark); }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-dark); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .section-title-text { display: flex; align-items: center; gap: 0.5rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
         .stat-card { background: var(--gray-50); padding: 1.5rem; border-radius: 10px; border: 1px solid var(--border); text-align: center; }
         .stat-card h3 { font-size: 0.9rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.75rem; }
         .stat-value { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
@@ -43,185 +46,670 @@
         .badge { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; }
         .badge-primary { background: rgba(37,99,235,0.1); color: var(--primary); }
         .badge-success { background: rgba(16,185,129,0.1); color: var(--secondary); }
-        .badge-warning { background: rgba(245,158,11,0.1); color: #f59e0b; }
+        .badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
         .badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
         .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
         .btn-primary { background: var(--primary); color: var(--white); }
         .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: var(--secondary); color: var(--white); }
+        .btn-secondary:hover { background: #059669; }
         .btn-danger { background: var(--danger); color: var(--white); }
-        .tabs { display: flex; gap: 1rem; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem; }
-        .tab { padding: 1rem; border: none; background: none; cursor: pointer; font-weight: 600; color: var(--text-light); border-bottom: 3px solid transparent; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text-dark); }
+        .btn-outline:hover { background: var(--gray-50); }
+        .tabs { display: flex; gap: 1rem; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem; overflow-x: auto; }
+        .tab { padding: 1rem; border: none; background: none; cursor: pointer; font-weight: 600; color: var(--text-light); border-bottom: 3px solid transparent; white-space: nowrap; }
         .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .internship-card { background: var(--gray-50); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; }
         .internship-card:hover { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .internship-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .internship-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap; }
         .internship-title { font-size: 1.1rem; font-weight: 700; }
         .internship-company { color: var(--text-light); font-size: 0.9rem; }
         .internship-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
         .meta-item { display: flex; flex-direction: column; gap: 0.25rem; }
         .meta-label { font-size: 0.8rem; color: var(--text-light); text-transform: uppercase; }
         .meta-value { font-weight: 600; color: var(--text-dark); }
+        
+        /* Testimonial Cards */
+        .testimonial-card { background: var(--gray-50); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; }
+        .testimonial-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .testimonial-stars { color: #fbbf24; font-size: 1.1rem; }
+        .testimonial-text { color: var(--text-dark); font-style: italic; margin-bottom: 1rem; line-height: 1.7; }
+        .testimonial-author { display: flex; align-items: center; gap: 1rem; }
+        .author-avatar { width: 48px; height: 48px; background: var(--primary); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; }
+        .author-info { flex: 1; }
+        .author-name { font-weight: 700; color: var(--text-dark); }
+        .author-role { font-size: 0.85rem; color: var(--text-light); }
+        
+        /* FAQ Cards */
+        .faq-card { background: var(--gray-50); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; }
+        .faq-question { font-weight: 700; color: var(--text-dark); margin-bottom: 0.75rem; font-size: 1.05rem; }
+        .faq-answer { color: var(--text-light); line-height: 1.7; }
+        .faq-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content { background: var(--white); border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; }
+        .modal-content { background: var(--white); border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .modal-header h3 { font-size: 1.5rem; font-weight: 700; }
-        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
+        .modal-close:hover { color: var(--text-dark); }
         .modal-body { margin-bottom: 1.5rem; color: var(--text-light); }
         .modal-footer { display: flex; gap: 1rem; justify-content: flex-end; }
         .alert { padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
         .alert-info { background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.3); color: var(--primary); }
-        .alert-success { background: rgba(16,185,129,0.1); color: var(--secondary); }
-        .alert-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
+        .alert-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: var(--secondary); }
+        .alert-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--danger); }
         .footer { background: var(--gray-900); color: var(--white); padding: 2rem 0; text-align: center; margin-top: 3rem; }
         .footer p { opacity: 0.8; font-size: 0.9rem; }
+        .empty-state { text-align: center; padding: 3rem; color: var(--text-light); }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; }
+        
+        /* Internship Actions */
+        .internship-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+        
+        /* Detail Modal */
+        .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .detail-item { display: flex; flex-direction: column; }
+        .detail-label { font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem; }
+        .detail-value { font-weight: 600; color: var(--gray-900); }
+        .detail-description { margin-bottom: 1.5rem; }
+        .detail-description h4 { font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.5rem; }
+        .detail-description p { color: var(--text); line-height: 1.7; }
+        .skills-container { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .skill-tag { background: rgba(37,99,235,0.1); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 100px; font-size: 0.8rem; font-weight: 500; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-content { flex-direction: column; text-align: center; }
+            .navbar-actions { justify-content: center; }
+            header h2 { font-size: 1.8rem; }
+            .section { padding: 1.5rem; }
+            .section-title { flex-direction: column; align-items: flex-start; }
+            .stat-value { font-size: 2rem; }
+            th, td { padding: 0.75rem 0.5rem; font-size: 0.85rem; }
+            .detail-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="navbar-content">
             <h1>InternHub - Sample Data Dashboard</h1>
-            <div><button class="btn btn-danger" onclick="openDeleteModal()">Delete All Data</button></div>
+            <div class="navbar-actions">
+                <button class="btn btn-secondary" onclick="loadSampleData()">Load Sample Data</button>
+                <button class="btn btn-danger" onclick="openDeleteModal()">Delete All Data</button>
+            </div>
         </div>
     </nav>
     <div class="container">
         <header>
             <h2>Welcome to InternHub</h2>
-            <p>Production-Ready Internship Platform - Client Showcase</p>
+            <p>Production-Ready Internship Platform - Sample Data Management</p>
         </header>
-        <div class="alert alert-info">
-            <span>[i]</span>
-            <div><strong>Demo Data Loaded:</strong> This dashboard displays sample data for client presentation.</div>
-        </div>
+        
+        <div id="alertContainer"></div>
+        
         <section class="section">
             <h2 class="section-title">Platform Statistics</h2>
             <div class="stats-grid">
-                <div class="stat-card"><h3>Total Companies</h3><div class="stat-value" id="totalCompanies">25</div></div>
-                <div class="stat-card"><h3>Active Internships</h3><div class="stat-value" id="activeInternships">25</div></div>
-                <div class="stat-card"><h3>Registered Users</h3><div class="stat-value" id="registeredUsers">450+</div></div>
-                <div class="stat-card"><h3>Stipend Range</h3><div class="stat-value" id="stipendRange">14-30K</div></div>
+                <div class="stat-card"><h3>Total Companies</h3><div class="stat-value" id="totalCompanies">0</div></div>
+                <div class="stat-card"><h3>Active Internships</h3><div class="stat-value" id="activeInternships">0</div></div>
+                <div class="stat-card"><h3>Registered Users</h3><div class="stat-value" id="registeredUsers">0</div></div>
+                <div class="stat-card"><h3>Testimonials</h3><div class="stat-value" id="totalTestimonials">0</div></div>
+                <div class="stat-card"><h3>FAQs</h3><div class="stat-value" id="totalFaqs">0</div></div>
             </div>
         </section>
-        <section class="section">
-            <h2 class="section-title">Featured Internship Opportunities</h2>
-            <div id="internshipsList"></div>
-        </section>
+        
         <section class="section">
             <h2 class="section-title">Data Management</h2>
             <div class="tabs">
-                <button class="tab active" onclick="switchTab(event, 'users')">Users</button>
+                <button class="tab active" onclick="switchTab(event, 'internships')">Internships</button>
+                <button class="tab" onclick="switchTab(event, 'users')">Users</button>
                 <button class="tab" onclick="switchTab(event, 'applications')">Applications</button>
-                <button class="tab" onclick="switchTab(event, 'tasks')">Tasks</button>
+                <button class="tab" onclick="switchTab(event, 'testimonials')">Testimonials</button>
+                <button class="tab" onclick="switchTab(event, 'faqs')">FAQs</button>
             </div>
-            <div id="users" class="tab-content active">
+            
+            <!-- Internships Tab -->
+            <div id="internships" class="tab-content active">
+                <div id="internshipsList"></div>
+            </div>
+            
+            <!-- Users Tab -->
+            <div id="users" class="tab-content">
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
-                        <tbody id="usersTable">
-                            <tr><td>#U001</td><td>Aditya Kumar</td><td>aditya@example.com</td><td><span class="badge badge-primary">Student</span></td><td><span class="badge badge-success">Active</span></td></tr>
-                            <tr><td>#U002</td><td>Priya Singh</td><td>priya@example.com</td><td><span class="badge badge-primary">Student</span></td><td><span class="badge badge-success">Active</span></td></tr>
-                            <tr><td>#U003</td><td>Admin User</td><td>admin@example.com</td><td><span class="badge badge-warning">Admin</span></td><td><span class="badge badge-success">Active</span></td></tr>
-                        </tbody>
+                        <thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Role</th><th>College</th></tr></thead>
+                        <tbody id="usersTable"></tbody>
                     </table>
                 </div>
             </div>
+            
+            <!-- Applications Tab -->
             <div id="applications" class="tab-content">
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>App ID</th><th>Candidate</th><th>Position</th><th>Company</th><th>Status</th><th>Date</th></tr></thead>
-                        <tbody id="applicationsTable">
-                            <tr><td>#A001</td><td>Aditya Kumar</td><td>Frontend Developer</td><td>Google</td><td><span class="badge badge-success">Accepted</span></td><td>Nov 25, 2025</td></tr>
-                            <tr><td>#A002</td><td>Priya Singh</td><td>Data Scientist</td><td>Microsoft</td><td><span class="badge badge-primary">Pending</span></td><td>Nov 26, 2025</td></tr>
-                            <tr><td>#A003</td><td>Aditya Kumar</td><td>Backend Engineer</td><td>Amazon</td><td><span class="badge badge-warning">Interview</span></td><td>Nov 27, 2025</td></tr>
-                        </tbody>
+                        <thead><tr><th>App ID</th><th>User ID</th><th>Internship ID</th><th>Status</th><th>Applied At</th></tr></thead>
+                        <tbody id="applicationsTable"></tbody>
                     </table>
                 </div>
             </div>
-            <div id="tasks" class="tab-content">
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th>Task ID</th><th>Title</th><th>Assigned To</th><th>Priority</th><th>Status</th><th>Due</th></tr></thead>
-                        <tbody id="tasksTable">
-                            <tr><td>#T001</td><td>Complete profile</td><td>Aditya Kumar</td><td><span class="badge badge-danger">High</span></td><td><span class="badge badge-success">Done</span></td><td>Nov 30</td></tr>
-                            <tr><td>#T002</td><td>Update resume</td><td>Priya Singh</td><td><span class="badge badge-warning">Medium</span></td><td><span class="badge badge-primary">In Progress</span></td><td>Dec 5</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+            
+            <!-- Testimonials Tab -->
+            <div id="testimonials" class="tab-content">
+                <div id="testimonialsList"></div>
+            </div>
+            
+            <!-- FAQs Tab -->
+            <div id="faqs" class="tab-content">
+                <div id="faqsList"></div>
             </div>
         </section>
+        
         <section class="section">
             <h2 class="section-title">Quick Actions</h2>
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <button class="btn btn-primary" onclick="loadDemoData()">Reload Demo Data</button>
-                <button class="btn btn-primary" onclick="exportData()">Export Data</button>
-                <button class="btn btn-danger" onclick="openDeleteModal()">Delete All</button>
+                <button class="btn btn-primary" onclick="loadSampleData()">Load Sample Data</button>
+                <button class="btn btn-outline" onclick="exportData()">Export All Data</button>
+                <button class="btn btn-danger" onclick="openDeleteModal()">Delete All Data</button>
             </div>
         </section>
     </div>
+    
+    <!-- Delete Modal -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h3>Delete All Data</h3><button class="modal-close" onclick="closeDeleteModal()">X</button></div>
-            <div class="modal-body"><p><strong>Warning:</strong> This will permanently delete all sample data.</p></div>
+            <div class="modal-header">
+                <h3>Delete All Data</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Warning:</strong> This will permanently delete all sample data including internships, users, applications, testimonials, and FAQs.</p>
+                <p style="margin-top: 1rem;">The homepage Success Stories and FAQ sections will be hidden until sample data is reloaded.</p>
+            </div>
             <div class="modal-footer">
-                <button class="btn" onclick="closeDeleteModal()" style="background: #d1d5db;">Cancel</button>
+                <button class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
                 <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete All</button>
             </div>
         </div>
     </div>
-    <footer class="footer"><p>2025 InternHub - Professional Internship Platform</p></footer>
+    
+    <!-- Internship Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detailsTitle">Internship Details</h3>
+                <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detailsBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer"><p>&copy; 2025 InternHub - Professional Internship Platform</p></footer>
+    
     <script>
-        const sampleInternships = [
-            { id: 1, title: 'Frontend Developer', company: 'Google', location: 'Remote', type: 'Full-time', stipend: 'Rs 25,000/month', applicants: '2,500+', rating: '4.8' },
-            { id: 2, title: 'Data Scientist', company: 'Microsoft', location: 'Hyderabad', type: 'Full-time', stipend: 'Rs 28,000/month', applicants: '1,800+', rating: '4.7' },
-            { id: 3, title: 'Backend Engineer', company: 'Amazon', location: 'Bangalore', type: 'Full-time', stipend: 'Rs 30,000/month', applicants: '3,200+', rating: '4.9' },
-            { id: 4, title: 'UI/UX Designer', company: 'Meta', location: 'Remote', type: 'Part-time', stipend: 'Rs 18,000/month', applicants: '950+', rating: '4.6' },
-            { id: 5, title: 'ML Engineer', company: 'Apple', location: 'Bangalore', type: 'Full-time', stipend: 'Rs 26,000/month', applicants: '1,200+', rating: '4.8' }
-        ];
-        function initDashboard() { loadDemoData(); }
-        function loadDemoData() {
-            document.getElementById('internshipsList').innerHTML = sampleInternships.map(i => `
+        // Sample Data Generators
+        const generateInternships = () => {
+            const companies = ['TechCorp India', 'CloudSoft', 'WebVision Solutions', 'CreativeStudio', 'Analytics Pro', 'Google', 'Microsoft', 'Amazon', 'Meta', 'Apple'];
+            const titles = ['Frontend Developer', 'Backend Developer', 'Data Scientist', 'UI/UX Designer', 'DevOps Engineer', 'ML Engineer', 'Full Stack Developer'];
+            const locations = ['Remote', 'Bangalore', 'Delhi', 'Mumbai', 'Pune', 'Hyderabad'];
+            const skills = ['React', 'Node.js', 'Python', 'Java', 'AWS', 'Docker', 'MongoDB', 'SQL', 'TypeScript', 'GraphQL'];
+            
+            const internships = [];
+            for (let i = 1; i <= 25; i++) {
+                const company = companies[Math.floor(Math.random() * companies.length)];
+                const title = titles[Math.floor(Math.random() * titles.length)];
+                const skillsNeeded = [];
+                for (let j = 0; j < 3 + Math.floor(Math.random() * 3); j++) {
+                    const skill = skills[Math.floor(Math.random() * skills.length)];
+                    if (!skillsNeeded.includes(skill)) skillsNeeded.push(skill);
+                }
+                const stipend = 14000 + Math.floor(Math.random() * 8) * 2000;
+                
+                internships.push({
+                    id: i,
+                    title: `${title} - ${company.split(' ')[0]}`,
+                    company,
+                    duration: `${2 + Math.floor(Math.random() * 5)} Months`,
+                    location: locations[Math.floor(Math.random() * locations.length)],
+                    stipend: `₹${stipend.toLocaleString()}/month`,
+                    description: `Join ${company} and work on exciting ${title.toLowerCase()} projects.`,
+                    skills: skillsNeeded,
+                    type: Math.random() > 0.3 ? 'Full-time' : 'Part-time',
+                    applicants: Math.floor(Math.random() * 150),
+                    rating: (4.0 + Math.random() * 0.9).toFixed(1),
+                    createdAt: new Date().toISOString()
+                });
+            }
+            return internships;
+        };
+        
+        const generateUsers = () => {
+            const firstNames = ['Raj', 'Priya', 'Amit', 'Neha', 'Vikram', 'Sneha', 'Rohit', 'Divya', 'Arjun', 'Ananya'];
+            const lastNames = ['Kumar', 'Singh', 'Patel', 'Sharma', 'Verma', 'Reddy', 'Gupta', 'Rao'];
+            const colleges = ['IIT Delhi', 'IIT Mumbai', 'NIT Bangalore', 'VIT Vellore', 'BITS Pilani'];
+            
+            const users = [];
+            for (let i = 1; i <= 15; i++) {
+                const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+                const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+                users.push({
+                    id: `user-${i}`,
+                    username: `student-${i}`,
+                    email: `student${i}@internhub.com`,
+                    password: 'password123',
+                    fullName: `${firstName} ${lastName}`,
+                    role: 'student',
+                    college: colleges[Math.floor(Math.random() * colleges.length)],
+                    branch: 'Computer Science',
+                    isAdmin: false,
+                    createdAt: new Date().toISOString()
+                });
+            }
+            
+            // Add admin and demo users
+            users.push({
+                id: 'admin-1',
+                username: 'admin',
+                email: 'admin@internhub.com',
+                password: 'admin123',
+                fullName: 'Admin User',
+                role: 'admin',
+                college: 'Admin',
+                branch: 'Administration',
+                isAdmin: true,
+                createdAt: new Date().toISOString()
+            });
+            
+            users.push({
+                id: 'demo-1',
+                username: 'demo',
+                email: 'demo@internhub.com',
+                password: 'demo123',
+                fullName: 'Demo Student',
+                role: 'student',
+                college: 'Demo University',
+                branch: 'Computer Science',
+                isAdmin: false,
+                createdAt: new Date().toISOString()
+            });
+            
+            return users;
+        };
+        
+        const generateTestimonials = () => {
+            return [
+                {
+                    id: 1,
+                    name: 'Aditya Kumar',
+                    initials: 'AK',
+                    role: 'Frontend Developer @ Google',
+                    rating: 5,
+                    text: 'This platform helped me land an internship at Google. The matching algorithm was spot-on, and the entire process was seamless. Highly recommended!'
+                },
+                {
+                    id: 2,
+                    name: 'Priya Singh',
+                    initials: 'PS',
+                    role: 'Data Scientist @ Microsoft',
+                    rating: 5,
+                    text: 'I got my first internship through this platform. The mentorship and real-world projects were invaluable. Now I have a full-time offer!'
+                },
+                {
+                    id: 3,
+                    name: 'Rohit Verma',
+                    initials: 'RV',
+                    role: 'Backend Engineer @ Amazon',
+                    rating: 5,
+                    text: 'Easy to use, great support, and the internships are from reputable companies. I learned more in 3 months than in a year of college!'
+                }
+            ];
+        };
+        
+        const generateFaqs = () => {
+            return [
+                {
+                    id: 1,
+                    question: 'Is the platform really free?',
+                    answer: 'Yes! Creating an account and browsing internships is completely free. We monetize through company partnerships, not student fees.'
+                },
+                {
+                    id: 2,
+                    question: "What's the average stipend?",
+                    answer: 'Stipends range from ₹14,000 to ₹30,000+ per month depending on role, company, and experience. Competitive packages are guaranteed.'
+                },
+                {
+                    id: 3,
+                    question: 'Can I apply for multiple internships?',
+                    answer: 'Yes! You can apply to as many internships as you want. We recommend applying to roles that match your skills and interests.'
+                },
+                {
+                    id: 4,
+                    question: 'Do I need prior experience?',
+                    answer: 'No! We have internships for freshers and experienced students. Many companies provide on-the-job training.'
+                },
+                {
+                    id: 5,
+                    question: 'Are remote internships available?',
+                    answer: 'Yes! Most companies offer remote, hybrid, or office-based roles. You can filter by work location preference.'
+                },
+                {
+                    id: 6,
+                    question: "What if I don't get selected?",
+                    answer: 'Keep applying! We have 1,000+ opportunities. Use our skill recommendations to improve your profile and increase chances.'
+                }
+            ];
+        };
+        
+        // Initialize Dashboard
+        function initDashboard() {
+            loadDataFromStorage();
+        }
+        
+        // Load data from localStorage and display
+        function loadDataFromStorage() {
+            const internships = JSON.parse(localStorage.getItem('internships') || '[]');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const applications = JSON.parse(localStorage.getItem('applications') || '[]');
+            const testimonials = JSON.parse(localStorage.getItem('testimonials') || '[]');
+            const faqs = JSON.parse(localStorage.getItem('faqs') || '[]');
+            
+            // Update stats
+            const companies = new Set(internships.map(i => i.company));
+            document.getElementById('totalCompanies').textContent = companies.size;
+            document.getElementById('activeInternships').textContent = internships.length;
+            document.getElementById('registeredUsers').textContent = users.length;
+            document.getElementById('totalTestimonials').textContent = testimonials.length;
+            document.getElementById('totalFaqs').textContent = faqs.length;
+            
+            // Render internships
+            renderInternships(internships);
+            
+            // Render users
+            renderUsers(users);
+            
+            // Render applications
+            renderApplications(applications);
+            
+            // Render testimonials
+            renderTestimonials(testimonials);
+            
+            // Render FAQs
+            renderFaqs(faqs);
+        }
+        
+        function renderInternships(internships) {
+            const container = document.getElementById('internshipsList');
+            if (internships.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No internships found. Click "Load Sample Data" to add sample internships.</p></div>';
+                return;
+            }
+            
+            container.innerHTML = internships.slice(0, 10).map(i => `
                 <div class="internship-card">
                     <div class="internship-header">
-                        <div><div class="internship-title">${i.title}</div><div class="internship-company">${i.company}</div></div>
-                        <span class="badge badge-primary">Rating: ${i.rating}</span>
+                        <div>
+                            <div class="internship-title">${i.title}</div>
+                            <div class="internship-company">${i.company}</div>
+                        </div>
+                        <span class="badge badge-primary">Rating: ${i.rating || 'N/A'}</span>
                     </div>
                     <div class="internship-meta">
                         <div class="meta-item"><span class="meta-label">Location</span><span class="meta-value">${i.location}</span></div>
                         <div class="meta-item"><span class="meta-label">Type</span><span class="meta-value">${i.type}</span></div>
                         <div class="meta-item"><span class="meta-label">Stipend</span><span class="meta-value">${i.stipend}</span></div>
-                        <div class="meta-item"><span class="meta-label">Applicants</span><span class="meta-value">${i.applicants}</span></div>
+                        <div class="meta-item"><span class="meta-label">Duration</span><span class="meta-value">${i.duration}</span></div>
+                    </div>
+                    <div class="internship-actions">
+                        <button class="btn btn-primary btn-sm" onclick="viewInternshipDetails(${i.id})">View Details</button>
+                    </div>
+                </div>
+            `).join('') + (internships.length > 10 ? `<p style="text-align: center; color: var(--text-light); padding: 1rem;">Showing 10 of ${internships.length} internships</p>` : '');
+        }
+        
+        function renderUsers(users) {
+            const tbody = document.getElementById('usersTable');
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-light);">No users found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = users.slice(0, 20).map(u => `
+                <tr>
+                    <td><code>${u.id}</code></td>
+                    <td>${u.fullName}</td>
+                    <td>${u.email}</td>
+                    <td><span class="badge ${u.isAdmin ? 'badge-warning' : 'badge-primary'}">${u.role}</span></td>
+                    <td>${u.college}</td>
+                </tr>
+            `).join('') + (users.length > 20 ? `<tr><td colspan="5" style="text-align: center; color: var(--text-light);">Showing 20 of ${users.length} users</td></tr>` : '');
+        }
+        
+        function renderApplications(applications) {
+            const tbody = document.getElementById('applicationsTable');
+            if (applications.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-light);">No applications found</td></tr>';
+                return;
+            }
+            
+            const statusColors = { 'Applied': 'badge-primary', 'Accepted': 'badge-success', 'Rejected': 'badge-danger', 'Interview': 'badge-warning' };
+            tbody.innerHTML = applications.map(a => `
+                <tr>
+                    <td><code>${a.id}</code></td>
+                    <td>${a.userId}</td>
+                    <td>${a.internshipId}</td>
+                    <td><span class="badge ${statusColors[a.status] || 'badge-primary'}">${a.status}</span></td>
+                    <td>${new Date(a.appliedAt).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+        
+        function renderTestimonials(testimonials) {
+            const container = document.getElementById('testimonialsList');
+            if (testimonials.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💬</div><p>No testimonials found. Click "Load Sample Data" to add sample testimonials.</p><p style="margin-top: 0.5rem; font-size: 0.9rem;">The Success Stories section on the homepage will be hidden.</p></div>';
+                return;
+            }
+            
+            container.innerHTML = testimonials.map(t => `
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="testimonial-stars">${'⭐'.repeat(t.rating || 5)}</div>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTestimonial(${t.id})">Delete</button>
+                    </div>
+                    <p class="testimonial-text">"${t.text}"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">${t.initials}</div>
+                        <div class="author-info">
+                            <p class="author-name">${t.name}</p>
+                            <p class="author-role">${t.role}</p>
+                        </div>
                     </div>
                 </div>
             `).join('');
         }
+        
+        function renderFaqs(faqs) {
+            const container = document.getElementById('faqsList');
+            if (faqs.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">❓</div><p>No FAQs found. Click "Load Sample Data" to add sample FAQs.</p><p style="margin-top: 0.5rem; font-size: 0.9rem;">The FAQ section on the homepage will be hidden.</p></div>';
+                return;
+            }
+            
+            container.innerHTML = faqs.map(f => `
+                <div class="faq-card">
+                    <div class="faq-header">
+                        <div style="flex: 1;">
+                            <h4 class="faq-question">${f.question}</h4>
+                            <p class="faq-answer">${f.answer}</p>
+                        </div>
+                        <button class="btn btn-sm btn-danger" onclick="deleteFaq(${f.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Load sample data
+        function loadSampleData() {
+            localStorage.setItem('internships', JSON.stringify(generateInternships()));
+            localStorage.setItem('users', JSON.stringify(generateUsers()));
+            localStorage.setItem('applications', JSON.stringify([]));
+            localStorage.setItem('testimonials', JSON.stringify(generateTestimonials()));
+            localStorage.setItem('faqs', JSON.stringify(generateFaqs()));
+            localStorage.setItem('storageVersion', '3.0');
+            
+            loadDataFromStorage();
+            showAlert('Sample data loaded successfully! The homepage will now show Success Stories and FAQs.', 'success');
+        }
+        
+        // Delete individual testimonial
+        function deleteTestimonial(id) {
+            const testimonials = JSON.parse(localStorage.getItem('testimonials') || '[]');
+            const filtered = testimonials.filter(t => t.id !== id);
+            localStorage.setItem('testimonials', JSON.stringify(filtered));
+            loadDataFromStorage();
+            showAlert('Testimonial deleted.', 'info');
+        }
+        
+        // Delete individual FAQ
+        function deleteFaq(id) {
+            const faqs = JSON.parse(localStorage.getItem('faqs') || '[]');
+            const filtered = faqs.filter(f => f.id !== id);
+            localStorage.setItem('faqs', JSON.stringify(filtered));
+            loadDataFromStorage();
+            showAlert('FAQ deleted.', 'info');
+        }
+        
+        // Tab switching
         function switchTab(event, tabName) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById(tabName).classList.add('active');
         }
+        
+        // View Internship Details
+        function viewInternshipDetails(id) {
+            const internships = JSON.parse(localStorage.getItem('internships') || '[]');
+            const internship = internships.find(i => i.id === id);
+            
+            if (!internship) {
+                showAlert('Internship not found', 'danger');
+                return;
+            }
+            
+            document.getElementById('detailsTitle').textContent = internship.title;
+            document.getElementById('detailsBody').innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Company</span>
+                        <span class="detail-value">${internship.company}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Location</span>
+                        <span class="detail-value">${internship.location}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Duration</span>
+                        <span class="detail-value">${internship.duration}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Type</span>
+                        <span class="detail-value">${internship.type}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Stipend</span>
+                        <span class="detail-value" style="color: var(--secondary); font-weight: 700;">${internship.stipend}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Rating</span>
+                        <span class="detail-value">⭐ ${internship.rating || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Applicants</span>
+                        <span class="detail-value">${internship.applicants || 0} applied</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Posted</span>
+                        <span class="detail-value">${new Date(internship.createdAt).toLocaleDateString()}</span>
+                    </div>
+                </div>
+                
+                <div class="detail-description">
+                    <h4>Description</h4>
+                    <p>${internship.description}</p>
+                </div>
+                
+                <div class="detail-description">
+                    <h4>Required Skills</h4>
+                    <div class="skills-container">
+                        ${internship.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('detailsModal').classList.add('active');
+        }
+        
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.remove('active');
+        }
+        
+        // Modal functions
         function openDeleteModal() { document.getElementById('deleteModal').classList.add('active'); }
         function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('active'); }
+        
         function confirmDelete() {
-            document.getElementById('internshipsList').innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">All data deleted.</p>';
-            document.getElementById('usersTable').innerHTML = '<tr><td colspan="5" style="text-align: center;">No users</td></tr>';
-            document.getElementById('applicationsTable').innerHTML = '<tr><td colspan="6" style="text-align: center;">No applications</td></tr>';
-            document.getElementById('tasksTable').innerHTML = '<tr><td colspan="6" style="text-align: center;">No tasks</td></tr>';
-            document.getElementById('totalCompanies').textContent = '0';
-            document.getElementById('activeInternships').textContent = '0';
-            document.getElementById('registeredUsers').textContent = '0';
+            localStorage.removeItem('internships');
+            localStorage.removeItem('users');
+            localStorage.removeItem('applications');
+            localStorage.removeItem('tasks');
+            localStorage.removeItem('testimonials');
+            localStorage.removeItem('faqs');
+            localStorage.removeItem('storageVersion');
+            
+            loadDataFromStorage();
             closeDeleteModal();
+            showAlert('All data deleted. The homepage Success Stories and FAQ sections are now hidden.', 'danger');
         }
+        
+        // Export data
         function exportData() {
-            const blob = new Blob([JSON.stringify({ internships: sampleInternships, exportDate: new Date().toISOString() }, null, 2)], { type: 'application/json' });
+            const data = {
+                internships: JSON.parse(localStorage.getItem('internships') || '[]'),
+                users: JSON.parse(localStorage.getItem('users') || '[]'),
+                applications: JSON.parse(localStorage.getItem('applications') || '[]'),
+                testimonials: JSON.parse(localStorage.getItem('testimonials') || '[]'),
+                faqs: JSON.parse(localStorage.getItem('faqs') || '[]'),
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'internhub-data.json';
             a.click();
+            showAlert('Data exported successfully!', 'success');
         }
+        
+        // Show alert
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : type === 'danger' ? 'alert-danger' : 'alert-info';
+            container.innerHTML = `<div class="alert ${alertClass}"><span>${type === 'success' ? '✓' : type === 'danger' ? '⚠' : 'ℹ'}</span><div>${message}</div></div>`;
+            setTimeout(() => { container.innerHTML = ''; }, 5000);
+        }
+        
+        // Event listeners
         document.getElementById('deleteModal').addEventListener('click', e => { if (e.target.id === 'deleteModal') closeDeleteModal(); });
+        document.getElementById('detailsModal').addEventListener('click', e => { if (e.target.id === 'detailsModal') closeDetailsModal(); });
         window.addEventListener('load', initDashboard);
     </script>
 </body>

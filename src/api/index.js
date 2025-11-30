@@ -173,8 +173,74 @@ const generateUsers = () => {
   return users;
 };
 
+// Sample Testimonials Data
+const generateTestimonials = () => {
+  return [
+    {
+      id: 1,
+      name: 'Aditya Kumar',
+      initials: 'AK',
+      role: 'Frontend Developer @ Google',
+      rating: 5,
+      text: 'This platform helped me land an internship at Google. The matching algorithm was spot-on, and the entire process was seamless. Highly recommended!'
+    },
+    {
+      id: 2,
+      name: 'Priya Singh',
+      initials: 'PS',
+      role: 'Data Scientist @ Microsoft',
+      rating: 5,
+      text: 'I got my first internship through this platform. The mentorship and real-world projects were invaluable. Now I have a full-time offer!'
+    },
+    {
+      id: 3,
+      name: 'Rohit Verma',
+      initials: 'RV',
+      role: 'Backend Engineer @ Amazon',
+      rating: 5,
+      text: 'Easy to use, great support, and the internships are from reputable companies. I learned more in 3 months than in a year of college!'
+    }
+  ];
+};
+
+// Sample FAQs Data
+const generateFaqs = () => {
+  return [
+    {
+      id: 1,
+      question: 'Is the platform really free?',
+      answer: 'Yes! Creating an account and browsing internships is completely free. We monetize through company partnerships, not student fees.'
+    },
+    {
+      id: 2,
+      question: "What's the average stipend?",
+      answer: 'Stipends range from ₹14,000 to ₹30,000+ per month depending on role, company, and experience. Competitive packages are guaranteed.'
+    },
+    {
+      id: 3,
+      question: 'Can I apply for multiple internships?',
+      answer: 'Yes! You can apply to as many internships as you want. We recommend applying to roles that match your skills and interests.'
+    },
+    {
+      id: 4,
+      question: 'Do I need prior experience?',
+      answer: 'No! We have internships for freshers and experienced students. Many companies provide on-the-job training.'
+    },
+    {
+      id: 5,
+      question: 'Are remote internships available?',
+      answer: 'Yes! Most companies offer remote, hybrid, or office-based roles. You can filter by work location preference.'
+    },
+    {
+      id: 6,
+      question: "What if I don't get selected?",
+      answer: 'Keep applying! We have 1,000+ opportunities. Use our skill recommendations to improve your profile and increase chances.'
+    }
+  ];
+};
+
 // Initialize localStorage with comprehensive demo data
-const STORAGE_VERSION = '2.0'; // Increment to force re-initialization
+const STORAGE_VERSION = '3.0'; // Increment to force re-initialization with testimonials & FAQs
 
 const initializeLocalStorage = () => {
   // Check version - if different, clear and reinitialize
@@ -184,6 +250,8 @@ const initializeLocalStorage = () => {
     localStorage.removeItem('users');
     localStorage.removeItem('applications');
     localStorage.removeItem('tasks');
+    localStorage.removeItem('testimonials');
+    localStorage.removeItem('faqs');
     localStorage.setItem('storageVersion', STORAGE_VERSION);
   }
 
@@ -198,6 +266,12 @@ const initializeLocalStorage = () => {
   }
   if (!localStorage.getItem('tasks')) {
     localStorage.setItem('tasks', JSON.stringify([]));
+  }
+  if (!localStorage.getItem('testimonials')) {
+    localStorage.setItem('testimonials', JSON.stringify(generateTestimonials()));
+  }
+  if (!localStorage.getItem('faqs')) {
+    localStorage.setItem('faqs', JSON.stringify(generateFaqs()));
   }
 };
 
@@ -504,6 +578,64 @@ export const submissionAPI = {
     applications[appIndex].submissions[subIndex].status = status;
     localStorage.setItem('applications', JSON.stringify(applications));
     return applications[appIndex].submissions[subIndex];
+  }
+};
+
+// ===== TESTIMONIALS API =====
+export const testimonialsAPI = {
+  getAll: async () => {
+    initializeLocalStorage();
+    return JSON.parse(localStorage.getItem('testimonials') || '[]');
+  },
+
+  create: async (testimonialData) => {
+    const testimonials = JSON.parse(localStorage.getItem('testimonials') || '[]');
+    const newTestimonial = {
+      id: Math.max(...testimonials.map(t => t.id || 0), 0) + 1,
+      ...testimonialData
+    };
+    testimonials.push(newTestimonial);
+    localStorage.setItem('testimonials', JSON.stringify(testimonials));
+    return newTestimonial;
+  },
+
+  delete: async (testimonialId) => {
+    const testimonials = JSON.parse(localStorage.getItem('testimonials') || '[]');
+    const filtered = testimonials.filter(t => t.id !== testimonialId);
+    localStorage.setItem('testimonials', JSON.stringify(filtered));
+  },
+
+  deleteAll: async () => {
+    localStorage.setItem('testimonials', JSON.stringify([]));
+  }
+};
+
+// ===== FAQs API =====
+export const faqsAPI = {
+  getAll: async () => {
+    initializeLocalStorage();
+    return JSON.parse(localStorage.getItem('faqs') || '[]');
+  },
+
+  create: async (faqData) => {
+    const faqs = JSON.parse(localStorage.getItem('faqs') || '[]');
+    const newFaq = {
+      id: Math.max(...faqs.map(f => f.id || 0), 0) + 1,
+      ...faqData
+    };
+    faqs.push(newFaq);
+    localStorage.setItem('faqs', JSON.stringify(faqs));
+    return newFaq;
+  },
+
+  delete: async (faqId) => {
+    const faqs = JSON.parse(localStorage.getItem('faqs') || '[]');
+    const filtered = faqs.filter(f => f.id !== faqId);
+    localStorage.setItem('faqs', JSON.stringify(filtered));
+  },
+
+  deleteAll: async () => {
+    localStorage.setItem('faqs', JSON.stringify([]));
   }
 };
 

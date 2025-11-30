@@ -1,9 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { testimonialsAPI, faqsAPI } from '../api';
 
 function Home() {
+    const [testimonials, setTestimonials] = useState([]);
+    const [faqs, setFaqs] = useState([]);
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const testimonialsData = await testimonialsAPI.getAll();
+                const faqsData = await faqsAPI.getAll();
+                setTestimonials(testimonialsData);
+                setFaqs(faqsData);
+            } catch (error) {
+                console.error('Error loading home data:', error);
+            }
+        };
+        loadData();
+    }, []);
+
     return (
         <>
             <Navbar />
@@ -220,82 +238,48 @@ function Home() {
             </section>
 
             {/* Testimonials Section */}
+            {testimonials.length > 0 && (
             <section className="testimonials-section">
                 <div className="container">
                     <h2 className="section-title">Success Stories</h2>
                     <p className="section-subtitle">Real feedback from interns who transformed their careers</p>
                     
                     <div className="testimonials-grid">
-                        <div className="testimonial-card">
-                            <div className="stars">⭐⭐⭐⭐⭐</div>
-                            <p className="testimonial-text">"This platform helped me land an internship at Google. The matching algorithm was spot-on, and the entire process was seamless. Highly recommended!"</p>
+                        {testimonials.map(testimonial => (
+                        <div className="testimonial-card" key={testimonial.id}>
+                            <div className="stars">{'⭐'.repeat(testimonial.rating || 5)}</div>
+                            <p className="testimonial-text">"{testimonial.text}"</p>
                             <div className="testimonial-author">
-                                <div className="author-avatar">AK</div>
+                                <div className="author-avatar">{testimonial.initials}</div>
                                 <div className="author-info">
-                                    <p className="author-name">Aditya Kumar</p>
-                                    <p className="author-role">Frontend Developer @ Google</p>
+                                    <p className="author-name">{testimonial.name}</p>
+                                    <p className="author-role">{testimonial.role}</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="testimonial-card">
-                            <div className="stars">⭐⭐⭐⭐⭐</div>
-                            <p className="testimonial-text">"I got my first internship through this platform. The mentorship and real-world projects were invaluable. Now I have a full-time offer!"</p>
-                            <div className="testimonial-author">
-                                <div className="author-avatar">PS</div>
-                                <div className="author-info">
-                                    <p className="author-name">Priya Singh</p>
-                                    <p className="author-role">Data Scientist @ Microsoft</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="testimonial-card">
-                            <div className="stars">⭐⭐⭐⭐⭐</div>
-                            <p className="testimonial-text">"Easy to use, great support, and the internships are from reputable companies. I learned more in 3 months than in a year of college!"</p>
-                            <div className="testimonial-author">
-                                <div className="author-avatar">RV</div>
-                                <div className="author-info">
-                                    <p className="author-name">Rohit Verma</p>
-                                    <p className="author-role">Backend Engineer @ Amazon</p>
-                                </div>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
+            )}
 
             {/* FAQ Section */}
+            {faqs.length > 0 && (
             <section className="faq-section">
                 <div className="container">
                     <h2 className="section-title">Frequently Asked Questions</h2>
                     
                     <div className="faq-grid">
-                        <div className="faq-item">
-                            <h3>Is the platform really free?</h3>
-                            <p>Yes! Creating an account and browsing internships is completely free. We monetize through company partnerships, not student fees.</p>
+                        {faqs.map(faq => (
+                        <div className="faq-item" key={faq.id}>
+                            <h3>{faq.question}</h3>
+                            <p>{faq.answer}</p>
                         </div>
-                        <div className="faq-item">
-                            <h3>What's the average stipend?</h3>
-                            <p>Stipends range from ₹14,000 to ₹30,000+ per month depending on role, company, and experience. Competitive packages are guaranteed.</p>
-                        </div>
-                        <div className="faq-item">
-                            <h3>Can I apply for multiple internships?</h3>
-                            <p>Yes! You can apply to as many internships as you want. We recommend applying to roles that match your skills and interests.</p>
-                        </div>
-                        <div className="faq-item">
-                            <h3>Do I need prior experience?</h3>
-                            <p>No! We have internships for freshers and experienced students. Many companies provide on-the-job training.</p>
-                        </div>
-                        <div className="faq-item">
-                            <h3>Are remote internships available?</h3>
-                            <p>Yes! Most companies offer remote, hybrid, or office-based roles. You can filter by work location preference.</p>
-                        </div>
-                        <div className="faq-item">
-                            <h3>What if I don't get selected?</h3>
-                            <p>Keep applying! We have 1,000+ opportunities. Use our skill recommendations to improve your profile and increase chances.</p>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
+            )}
 
             <Footer />
         </>
