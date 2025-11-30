@@ -62,12 +62,18 @@ export const AppContextProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const userData = await userAPI.login(username, password);
+      // Pure local storage login
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const userData = users.find(u =>
+        (u.username.toLowerCase() === username.toLowerCase() ||
+         u.email.toLowerCase() === username.toLowerCase()) &&
+        u.password === password
+      );
+      if (!userData) {
+        return { success: false, error: 'Invalid credentials' };
+      }
       setLoggedInUser(userData);
-      
-      const userApps = await applicationAPI.getByUserId(userData.id);
-      setApplications(userApps || []);
-      
+      // Optionally fetch applications if needed
       return { success: true, user: userData };
     } catch (error) {
       return { success: false, error: error.message || 'Invalid credentials' };

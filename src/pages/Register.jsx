@@ -139,61 +139,32 @@ function Register() {
             fullName: username,
             college,
             branch,
-            password: regPassword, // In production, this should be hashed
+            password: regPassword,
             role: 'student',
             isAdmin: false,
             createdAt: new Date().toISOString()
         };
 
         try {
-            // Try API registration first
-            const result = await register({
-                username,
-                email,
-                fullName: username,
-                password: regPassword
-            });
-
-            if (result.success) {
-                // Also save to localStorage as backup
-                const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-                existingUsers.push(newUser);
-                localStorage.setItem('registeredUsers', JSON.stringify(existingUsers));
-
-                setMessage({ 
-                    text: '✅ Account created successfully! Redirecting to login...', 
-                    type: 'success' 
-                });
-                
-                setTimeout(() => {
-                    navigate('/login');
-                }, 2000);
-            } else {
-                throw new Error(result.error);
+            // Pure local storage registration
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            // Check for existing username/email
+            if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+                setMessage({ text: '❌ Username already taken', type: 'error' });
+                setIsLoading(false);
+                return;
             }
-        } catch (error) {
-            console.log('API registration failed, saving to offline mode...');
-            
-            // Fallback: Save user to localStorage
-            try {
-                const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-                existingUsers.push(newUser);
-                localStorage.setItem('registeredUsers', JSON.stringify(existingUsers));
-
-                setMessage({ 
-                    text: '✅ Account created! (Offline Mode) Redirecting to login...', 
-                    type: 'success' 
-                });
-                
-                setTimeout(() => {
-                    navigate('/login');
-                }, 2000);
-            } catch (storageError) {
-                setMessage({ 
-                    text: '❌ Failed to register user. Please try again.', 
-                    type: 'error' 
-                });
+            if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+                setMessage({ text: '❌ Email already registered', type: 'error' });
+                setIsLoading(false);
+                return;
             }
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            setMessage({ text: '✅ Registration successful! You can now log in.', type: 'success' });
+            setTimeout(() => navigate('/login'), 1200);
+        } catch (err) {
+            setMessage({ text: err.message || '❌ Registration error', type: 'error' });
         } finally {
             setIsLoading(false);
         }
