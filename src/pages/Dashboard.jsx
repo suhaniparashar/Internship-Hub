@@ -389,7 +389,7 @@ function Dashboard() {
                                             <p>{app.company}</p>
                                             <span className="application-date">Applied: {new Date(app.appliedAt).toLocaleDateString()}</span>
                                         </div>
-                                        <span className={`status-badge status-${app.status.toLowerCase()}`}>{app.status}</span>
+                                        <span className={`status-badge status-${app.status.toLowerCase().replace(/\s+/g, '-')}`}>{app.status}</span>
                                     </div>
                                 ))}
                             </div>

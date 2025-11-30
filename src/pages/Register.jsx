@@ -375,19 +375,17 @@ function Register() {
                                             {formData.regPassword === formData.regConfirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
                                         </small>
                                     )}
-                                </div>
                             </div>
+                        </div>
 
-                            <button 
-                                type="submit" 
-                                className="btn-login btn-full"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? 'Creating Account...' : 'Create My Account'}
-                            </button>
-                        </form>
-
-                        <div className="auth-footer">
+                        <button 
+                            type="submit" 
+                            className="btn btn-primary btn-full"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Creating Account...' : 'Create My Account'}
+                        </button>
+                    </form>                        <div className="auth-footer">
                             <p>Already have an account? <Link to="/login">Sign in here</Link></p>
                             <p><Link to="/">← Back to Home</Link></p>
                         </div>

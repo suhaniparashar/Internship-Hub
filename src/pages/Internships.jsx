@@ -221,7 +221,7 @@ function Internships() {
                                         </div>
                                         <div className="detail-item">
                                             <span className="detail-label">💰 Stipend:</span>
-                                            <span className="detail-value" style={{color: '#10b981', fontWeight: '700'}}>{internship.stipend}</span>
+                                            <span className="detail-value stipend-value">{internship.stipend}</span>
                                         </div>
                                         <div className="detail-item">
                                             <span className="detail-label">👥 Applicants:</span>

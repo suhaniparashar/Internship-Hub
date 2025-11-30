@@ -49,16 +49,6 @@ function Navbar() {
                     </Link>
                 </div>
                 
-                {/* Dark Mode Toggle */}
-                <button 
-                    className="dark-mode-toggle" 
-                    onClick={toggleDarkMode}
-                    aria-label="Toggle dark mode"
-                    title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                >
-                    <span className={`theme-icon ${darkMode ? 'theme-icon-sun' : 'theme-icon-moon'}`}></span>
-                </button>
-                
                 {/* Hamburger menu button for mobile */}
                 {loggedInUser && (
                     <button 
@@ -97,6 +87,16 @@ function Navbar() {
                         </>
                     )}
                 </ul>
+
+                {/* Dark Mode Toggle - Right Side */}
+                <button 
+                    className="dark-mode-toggle" 
+                    onClick={toggleDarkMode}
+                    aria-label="Toggle dark mode"
+                    title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                >
+                    <span className={`theme-icon ${darkMode ? 'theme-icon-sun' : 'theme-icon-moon'}`}></span>
+                </button>
             </div>
         </nav>
     );

@@ -419,11 +419,11 @@ a:hover {
 
 .navbar .container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding-top: var(--spacing-md);
   padding-bottom: var(--spacing-md);
   min-height: 70px;
+  gap: 2rem;
 }
 
 .navbar-container {
@@ -498,11 +498,12 @@ a:hover {
 
 .nav-links {
   display: flex;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-lg);
   align-items: center;
   list-style: none;
   margin: 0;
   padding: 0;
+  margin-left: auto;
 }
 
 .nav-links li {
@@ -605,10 +606,13 @@ a:hover {
   justify-content: center;
   width: 40px;
   height: 40px;
+  flex-shrink: 0;
+  margin-left: 1rem;
 }
 
 .dark-mode-toggle:hover {
   background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
 }
 
 .theme-icon {
@@ -1901,15 +1905,18 @@ tbody tr:hover {
 }
 
 .admin-table thead {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 
 .admin-table th {
-  color: white;
+  color: #ffffff !important;
+  background: transparent !important;
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   letter-spacing: 1px;
+  padding: 1rem 1.25rem;
+  white-space: nowrap;
 }
 
 .admin-table td {
@@ -1920,6 +1927,25 @@ tbody tr:hover {
 
 .admin-table tbody tr:hover {
   background-color: rgba(37, 99, 235, 0.05);
+}
+
+/* Dark mode for admin table */
+body.dark-mode .admin-table thead {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+}
+
+body.dark-mode .admin-table th {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+body.dark-mode .admin-table td {
+  color: #d1d5db;
+  border-color: #374151;
+}
+
+body.dark-mode .admin-table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
 .action-buttons {
@@ -2254,6 +2280,15 @@ tbody tr:hover {
   font-size: 0.9375rem;
   color: var(--color-text-primary);
   font-weight: 600;
+}
+
+.detail-value.stipend-value {
+  color: #10b981;
+  font-weight: 700;
+}
+
+body.dark-mode .detail-value.stipend-value {
+  color: #34d399;
 }
 
 .internship-description {
@@ -3297,6 +3332,21 @@ tbody tr:hover {
 .status-pending {
   background-color: rgba(245, 158, 11, 0.1);
   color: var(--color-warning);
+}
+
+.status-badge.status-applied {
+  background-color: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+}
+
+.status-badge.status-under-review {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+}
+
+.status-badge.status-shortlisted {
+  background-color: rgba(6, 182, 212, 0.1);
+  color: #0891b2;
 }
 
 .status-badge.status-selected,
