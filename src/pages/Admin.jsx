@@ -629,7 +629,7 @@ function Admin() {
 
       {/* USER DETAILS MODAL */}
       {showUserModal && selectedUser && (
-        <div className="modal-overlay" onClick={closeUserModal}>
+        <div className="admin-modal-overlay" onClick={closeUserModal}>
           <div className="user-detail-modal" onClick={(e) => e.stopPropagation()}>
             <button className="modal-close-btn" onClick={closeUserModal}>×</button>
             

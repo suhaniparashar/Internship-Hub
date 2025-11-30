@@ -1438,7 +1438,7 @@ body.dark-mode .task-item-meta {
 }
 
 /* ===== USER DETAIL MODAL ===== */
-.modal-overlay {
+.admin-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -1448,9 +1448,10 @@ body.dark-mode .task-item-meta {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   padding: 1rem;
   overflow-y: auto;
+  opacity: 1 !important;
 }
 
 .user-detail-modal {
@@ -1806,6 +1807,10 @@ body.dark-mode .task-item-meta {
 }
 
 /* Dark mode for user modal */
+body.dark-mode .admin-modal-overlay {
+  background: rgba(0, 0, 0, 0.75);
+}
+
 body.dark-mode .user-detail-modal {
   background: #1f2937;
 }
