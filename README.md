@@ -1,240 +1,275 @@
-# InternHub - Remote Internship Management Platform (FEDF-PS37)
+# InternHub - Internship Management Platform
 
-A complete React + Vite implementation of InternHub with **Task Management & Evaluation** features for remote internship management.
+A complete React-based internship management platform with student and admin dashboards, task management, and application tracking.
 
-##  Features
+## Tech Stack
+
+### Frontend
+- **React 19.1** - UI library for building user interfaces
+- **React Router DOM 7.9** - Client-side routing
+- **Vite 7.1** - Next-generation frontend build tool
+- **CSS3** - Custom styling with responsive design and dark mode
+
+### Development Tools
+- **ESLint 9.36** - Code linting and quality
+- **Vite Plugin React** - Fast Refresh for React
+
+### Data Storage
+- **LocalStorage API** - Client-side data persistence
+- **JSON** - Data format for internships and user data
+
+### Deployment
+- **Vercel** - Production deployment platform
+
+## Project Structure
+
+```
+Internship-Hub/
+├── public/
+│   ├── data/
+│   │   └── internships.json    # Sample internship data
+│   ├── data.html               # Standalone data dashboard
+│   └── dashboard.html          # Public dashboard
+├── src/
+│   ├── api/
+│   │   └── index.js            # LocalStorage API layer
+│   ├── components/
+│   │   ├── Navbar.jsx          # Navigation with dark mode toggle
+│   │   ├── Footer.jsx          # Site footer
+│   │   ├── ProtectedRoute.jsx  # Auth route protection
+│   │   └── FileSubmission.jsx  # File upload component
+│   ├── context/
+│   │   └── AppContext.jsx      # Global state management
+│   ├── hooks/
+│   │   └── useLocalStorage.js  # Custom localStorage hook
+│   ├── pages/
+│   │   ├── Home.jsx            # Landing page
+│   │   ├── Login.jsx           # User authentication
+│   │   ├── Register.jsx        # User registration
+│   │   ├── Dashboard.jsx       # Student dashboard
+│   │   ├── Internships.jsx     # Browse internships
+│   │   ├── Enrolled.jsx        # Enrolled internships and tasks
+│   │   ├── Status.jsx          # Application status tracking
+│   │   ├── About.jsx           # About page
+│   │   └── Admin.jsx           # Admin dashboard
+│   ├── styles/
+│   │   └── Admin.css           # Admin-specific styles
+│   ├── utils/
+│   │   ├── auth.js             # Authentication helpers
+│   │   ├── data.js             # Sample data
+│   │   ├── formatDate.js       # Date formatting utilities
+│   │   └── notifications.js    # Toast and modal notifications
+│   ├── App.jsx                 # Main app with routing
+│   ├── App.css                 # Global styles
+│   ├── main.jsx                # React entry point
+│   └── index.css               # Base styles
+├── package.json
+├── vite.config.js
+├── vercel.json
+└── eslint.config.js
+```
+
+## Features
 
 ### Student Features
--  Browse and apply to internships
--  **Task Management** - Add, track, and manage tasks for each internship
--  **Progress Tracking** - Automatic progress calculation based on completed tasks
--  **Mentor Feedback** - View feedback and evaluation from mentors
--  Dashboard with application statistics
--  Application status tracking
--  Profile management
+- **Browse Internships** - Search, filter by type/location/stipend, sort by various criteria
+- **One-Click Apply** - Quick application submission
+- **Save Jobs** - Bookmark internships for later
+- **Dashboard** - View statistics, recent applications, recommended internships
+- **Application Tracking** - Real-time status updates (Applied, Under Review, Shortlisted, Selected, Rejected)
+- **Task Management** - View and manage assigned tasks from admin
+- **Dark Mode** - Toggle between light and dark themes
 
-### Admin/Mentor Features
--  View all registered students
--  **Student Progress Monitoring** - View each student's tasks and progress
--  **Add Feedback** - Provide feedback for each internship
--  **Evaluation** - Mark internships as Completed/Needs Improvement/Pending
--  User management
--  Application tracking
+### Admin Features
+- **Internship Management** - Add, edit, delete internships
+- **Application Review** - View all applications, update status, provide evaluation
+- **User Management** - View registered users, assign tasks
+- **Task Assignment** - Assign tasks to shortlisted/selected candidates
+- **Logical Flow Control** - Status transitions follow proper workflow
+- **Evaluation System** - Mark candidates as Selected/Rejected with feedback
 
-##  Quick Start
+### Authentication
+- User registration with validation
+- Login with username or email
+- Protected routes for authenticated users
+- Admin-only routes
+
+### UI/UX
+- Responsive design for all screen sizes
+- Dark mode support
+- Toast notifications
+- Confirmation modals
+- Loading states
+- Form validation with feedback
+
+## Quick Start
+
+### Prerequisites
+- Node.js 18+ installed
+- npm or yarn package manager
 
 ### Installation
-\\\ash
-cd C:\Users\DELL\OneDrive\Desktop\internhub-react
-npm install
-\\\
 
-### Run Development Server
-\\\ash
+```bash
+# Clone the repository
+git clone https://github.com/suhaniparashar/Internship-Hub.git
+
+# Navigate to project directory
+cd Internship-Hub
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
-\\\
+```
 
 Visit: http://localhost:5173
 
 ### Build for Production
-\\\ash
+
+```bash
 npm run build
-\\\
+```
 
-##  Project Structure
+### Preview Production Build
 
-\\\
-internhub-react/
- src/
-    components/
-       Navbar.jsx
-       Footer.jsx
-    pages/
-       Home.jsx
-       Login.jsx
-       Register.jsx
-       Dashboard.jsx
-       Internships.jsx
-       Enrolled.jsx       # NEW: Task Management
-       Status.jsx
-       About.jsx
-       Admin.jsx           # NEW: Evaluation Features
-    utils/
-       auth.js
-       data.js
-       notifications.js
-    App.jsx
-    main.jsx
-    App.css
- index.html
- package.json
- vite.config.js
-\\\
+```bash
+npm run preview
+```
 
-##  Demo Accounts
+## Demo Accounts
 
 ### Student Account
-- **Quick Login:** Click "Log in as Demo User" button
-- **Manual Login:**
-  - Email: demo@internhub.com
-  - Password: demo123
+- **Username:** demo
+- **Password:** demo123
 
 ### Admin Account
-- **Quick Login:** Click "Log in as Admin" button
-- **Manual Login:**
-  - Email: 2400033073@kluniversity.in
-  - Password: admin123
+- **Username:** admin
+- **Password:** admin123
 
-##  Data Model (localStorage)
+## Data Models
 
-### Enrollments (NEW)
-\\\javascript
+### User
+```javascript
 {
-  userEmail: string,
-  internshipId: number,
-  internshipTitle: string,
-  company: string,
-  appliedAt: ISO date,
-  status: 'Pending' | 'Selected' | 'Rejected',
-  tasks: [
-    {
-      title: string,
-      notes: string,
-      status: 'Pending' | 'Done',
-      createdAt: ISO date
-    }
-  ],
-  progress: 0-100,
-  feedback: string,
-  evaluation: 'Pending' | 'Completed' | 'Needs Improvement',
-  feedbackDate: ISO date
+  id: number,
+  username: string,
+  email: string,
+  password: string,
+  college: string,
+  branch: string,
+  role: 'user' | 'admin',
+  isAdmin: boolean,
+  createdAt: ISO date
 }
-\\\
+```
 
-##  New Features (FEDF-PS37 Compliance)
+### Internship
+```javascript
+{
+  id: number,
+  title: string,
+  company: string,
+  duration: string,
+  location: string,
+  stipend: string,
+  description: string,
+  skills: string[],
+  type: 'Full-time' | 'Part-time' | 'Remote',
+  applicants: number,
+  deadline: ISO date,
+  rating: number
+}
+```
 
-### 1. Task Management (Student)
-- Navigate to **My Applications** page
-- Click **" Tasks & Progress"** to expand any internship
-- **Add tasks** with title and optional notes
-- **Mark tasks as done** by clicking the checkbox
-- **Delete tasks** using the trash icon
-- **Progress auto-updates** based on completed vs total tasks
+### Application
+```javascript
+{
+  id: number,
+  internshipId: number,
+  userId: number,
+  status: 'Applied' | 'Under Review' | 'Shortlisted' | 'Selected' | 'Rejected',
+  evaluation: 'Pending' | 'Selected' | 'Rejected',
+  appliedAt: ISO date,
+  tasks: Task[]
+}
+```
 
-### 2. Progress Tracking
-- Progress bar shows completion percentage
-- Auto-calculated: (Completed Tasks / Total Tasks)  100
-- Updates in real-time as tasks are completed
+### Task
+```javascript
+{
+  id: number,
+  title: string,
+  description: string,
+  status: 'Pending' | 'Completed',
+  assignedAt: ISO date,
+  completedAt: ISO date | null
+}
+```
 
-### 3. Mentor Feedback (Student View)
-- View feedback from mentors on each internship
-- See evaluation status (Pending/Completed/Needs Improvement)
-- Displays on the expanded internship card
+## Application Status Flow
 
-### 4. Student Progress Monitoring (Admin)
-- Admin Dashboard  **"Student Progress & Evaluation"** tab
-- Click on any student card to view their details
-- See all enrolled internships with:
-  - Task lists
-  - Progress percentage
-  - Current feedback and evaluation
+```
+Applied → Under Review → Shortlisted → Selected
+                                    ↘ Rejected
+```
 
-### 5. Evaluation & Feedback (Admin)
-- Enter feedback text for each student's internship
-- Select evaluation status from dropdown
-- Click **"Save Feedback"** to store
-- Students can view this immediately
+- **Applied**: Initial state when user applies
+- **Under Review**: Admin is reviewing the application
+- **Shortlisted**: Candidate passed initial screening
+- **Selected**: Candidate is selected for the internship
+- **Rejected**: Application rejected (can happen from Under Review or Shortlisted)
 
-##  Design Philosophy
+## Pages
 
-- **Minimalist** - Clean, professional interface
-- **Lightweight** - No heavy frameworks, just React + Vite
-- **localStorage-based** - Fully static, no backend needed
-- **Responsive** - Works on desktop, tablet, and mobile
-- **Same Design** - Maintains original InternHub visual style
+| Page | Route | Access | Description |
+|------|-------|--------|-------------|
+| Home | `/` | Public | Landing page with features |
+| About | `/about` | Public | About the platform |
+| Internships | `/internships` | Public | Browse all internships |
+| Login | `/login` | Public | User login |
+| Register | `/register` | Public | User registration |
+| Dashboard | `/dashboard` | User | Student dashboard |
+| Enrolled | `/enrolled` | User | Enrolled internships and tasks |
+| Status | `/status` | User | Application status tracking |
+| Admin | `/admin` | Admin | Admin dashboard |
 
-##  Migration from Static Version
+## API Functions (LocalStorage)
 
-All existing features from the static HTML version are preserved:
-- Same CSS styling
-- Same color scheme
-- Same layout and components
-- Enhanced with React for better state management
+### User APIs
+- `userAPI.getAll()` - Get all users
+- `userAPI.getById(id)` - Get user by ID
+- `userAPI.create(user)` - Register new user
+- `userAPI.login(identifier, password)` - Authenticate user
 
-##  Responsive Design
+### Internship APIs
+- `internshipAPI.getAll()` - Get all internships
+- `internshipAPI.getById(id)` - Get internship by ID
+- `internshipAPI.create(internship)` - Add new internship
+- `internshipAPI.update(id, data)` - Update internship
+- `internshipAPI.delete(id)` - Delete internship
 
-- Mobile-friendly task management
-- Collapsible sections for small screens
-- Touch-friendly buttons and controls
-- Optimized for all device sizes
+### Application APIs
+- `applicationAPI.getAll()` - Get all applications
+- `applicationAPI.getByUser(userId)` - Get user's applications
+- `applicationAPI.create(application)` - Submit application
+- `applicationAPI.updateStatus(id, status)` - Update application status
+- `applicationAPI.updateEvaluation(id, evaluation)` - Update evaluation
 
-##  Deployment
+### Task APIs
+- `taskAPI.getByApplication(appId)` - Get tasks for application
+- `taskAPI.create(task)` - Create new task
+- `taskAPI.updateStatus(id, status)` - Update task status
+- `taskAPI.delete(id)` - Delete task
 
-### Vercel (Recommended)
-1. Push code to GitHub
-2. Connect repository to Vercel
-3. Deploy automatically
+## Dark Mode
 
-### Build & Deploy Manually
-\\\ash
-npm run build
-# Upload dist/ folder to your hosting
-\\\
+Toggle dark mode using the button in the navbar. The preference is saved in localStorage and persists across sessions.
 
-##  Usage Tips
+## Author
 
-### For Students
-1. Apply to internships from the Internships page
-2. Go to "My Applications" to manage your tasks
-3. Expand any internship to add/manage tasks
-4. Mark tasks as done to increase your progress
-5. Check feedback from mentors
-
-### For Admins
-1. Go to Admin Dashboard
-2. Switch to "Student Progress & Evaluation" tab
-3. Click on a student to see their progress
-4. Review their tasks and progress
-5. Add feedback and set evaluation status
-6. Save changes
-
-##  Technologies
-
-- **React 18.3** - UI framework
-- **Vite 5.4** - Build tool
-- **React Router DOM 6.26** - Routing
-- **localStorage** - Data persistence
-- **CSS3** - Styling
-- **No backend required** - Fully static
-
-##  License
-
-This is a demo project for educational purposes.
-
-##  Development
-
-### Key Components
-- \Navbar\ - Dynamic navigation based on user role
-- \Footer\ - Consistent footer across pages
-- \Enrolled\ - Task management interface
-- \Admin\ - Student progress and evaluation
-
-### State Management
-- Uses React hooks (useState, useEffect)
-- localStorage for data persistence
-- Real-time updates across components
-
-##  FEDF-PS37 Compliance
-
- Remote internship management
- Task tracking with status
- Progress reporting (auto-calculated)
- Mentor feedback system
- Student evaluation
- Role-based access (Student/Admin)
- Minimalist, clean UI
- Fully functional without backend
-
----
-
-**Built with  using React + Vite**
+**Suhani Parashar**
+- GitHub: [@suhaniparashar](https://github.com/suhaniparashar)
+- University: KL University
+- Roll ID: 2400033073

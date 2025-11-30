@@ -144,19 +144,14 @@ function Login() {
                             </form>
 
                             <div className="auth-divider">
-                                <span>or continue with</span>
+                                <span>or try demo</span>
                             </div>
 
                             <div className="demo-accounts">
-                                <p className="demo-label">Quick Demo Access</p>
                                 <div className="demo-buttons">
                                     <button className="btn-demo" onClick={fillUserDemo}>
                                         <span className="demo-icon icon-user"></span>
-                                        <span>Student Demo</span>
-                                    </button>
-                                    <button className="btn-demo admin" onClick={fillAdminDemo}>
-                                        <span className="demo-icon icon-admin"></span>
-                                        <span>Admin Demo</span>
+                                        <span>Try Demo Account</span>
                                     </button>
                                 </div>
                             </div>

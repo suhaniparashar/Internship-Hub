@@ -865,15 +865,15 @@ tbody tr:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 9999;
 }
 
 .modal-content {
-  background: white;
+  background: #ffffff;
   border-radius: 12px;
   padding: 2rem;
   max-width: 500px;
@@ -881,11 +881,58 @@ tbody tr:hover {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  color: #111827;
 }
 
 .modal-content h3 {
   margin-top: 0;
   color: #1f2937;
+}
+
+/* Dark mode modal in Admin */
+body.dark-mode .modal-overlay {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+body.dark-mode .modal-content {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+  border: 1px solid #374151;
+}
+
+body.dark-mode .modal-content h3 {
+  color: #f9fafb !important;
+}
+
+body.dark-mode .modal-content p {
+  color: #d1d5db !important;
+}
+
+body.dark-mode .modal-content .btn-cancel,
+body.dark-mode .modal-actions .btn-secondary {
+  background: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+body.dark-mode .modal-content .btn-cancel:hover,
+body.dark-mode .modal-actions .btn-secondary:hover {
+  background: #4b5563 !important;
+}
+
+body.dark-mode .modal-content .btn-confirm,
+body.dark-mode .modal-actions .btn-danger {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode .submission-details {
+  background: #374151;
+  color: #f9fafb;
+}
+
+body.dark-mode .submission-details p {
+  color: #d1d5db;
 }
 
 .submission-details {
